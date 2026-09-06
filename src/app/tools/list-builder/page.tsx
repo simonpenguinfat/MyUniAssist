@@ -6,14 +6,15 @@ export default async function ListBuilderPage() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      <h1 className="font-display text-3xl font-bold tracking-tight text-[#13263d]">
+      <p className="text-sm font-semibold italic text-[var(--teal)]">build</p>
+      <h1 className="font-serif mt-2 text-3xl font-semibold tracking-tight text-[var(--ink)] md:text-4xl">
         AI university application list builder
       </h1>
-      <p className="mt-2 max-w-3xl text-[#5d6f82]">
+      <p className="mt-2 max-w-3xl text-[var(--ink)]/70">
         Score campuses on academics, extracurriculars, personality, location, interests, and
         acceptance rate — then sort into safeties, matches, and reaches.
       </p>
-      <div className="mt-8 rounded-xl border border-[#d5dde6] bg-white p-5 md:p-6">
+      <div className="mt-8 border-t border-[var(--line)] bg-white/70 p-5 md:p-6">
         <ListBuilderForm universities={universities} />
       </div>
     </div>

@@ -21,12 +21,12 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#edf1f5] md:flex-row">
+    <div className="flex min-h-screen flex-col md:flex-row">
       <AppSidebar email={email} name={name} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 items-center justify-between border-b border-[#d5dde6] bg-white px-6">
-          <p className="text-sm font-semibold text-[#4a5b6d]">Workspace</p>
-          <p className="truncate text-sm text-[#6b7c8f]">{email ?? "Signed in"}</p>
+        <header className="flex h-14 items-center justify-between border-b border-black/5 bg-white/90 px-6 backdrop-blur">
+          <p className="text-sm font-semibold text-[var(--ink)]/70">Workspace</p>
+          <p className="truncate text-sm text-[var(--ink)]/55">{email ?? "Signed in"}</p>
         </header>
         <main className="flex-1 overflow-auto p-6 md:p-8">{children}</main>
       </div>

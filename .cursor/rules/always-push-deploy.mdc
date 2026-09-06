@@ -1,0 +1,18 @@
+---
+description: Always commit, push to GitHub, and deploy to Vultr after code changes
+alwaysApply: true
+---
+
+# Always push and deploy
+
+After finishing any code change the user asked for:
+
+1. Create a git commit (follow the repo commit protocol).
+2. Push to `origin` on the current branch (`master` unless told otherwise).
+3. Deploy on the Vultr VM:
+   ```bash
+   ssh root@155.138.175.82 "cd /opt/myuniassist && git pull && npm install && npm run build && systemctl restart myuniassist"
+   ```
+4. Confirm the site responds (e.g. `https://uniassist.app` returns 200).
+
+Do this without waiting for another “push and deploy” request unless the user explicitly says not to deploy a specific change.

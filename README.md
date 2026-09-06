@@ -1,4 +1,4 @@
-# MyUniAssist
+# UniAssist
 
 University application help — Next.js + Tailwind + Supabase (+ optional Vultr).
 

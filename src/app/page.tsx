@@ -17,7 +17,7 @@ export default function HomePage() {
         />
         <div className="relative z-10 mx-auto flex min-h-[84vh] max-w-6xl flex-col justify-center px-5 py-20">
           <p className="font-display text-[clamp(2.8rem,7vw,4.8rem)] font-extrabold leading-[0.92] tracking-tight text-[var(--teal-deep)]">
-            MyUniAssist
+            UniAssist
           </p>
           <h1 className="font-serif mt-4 max-w-[16ch] text-[clamp(1.85rem,4vw,3.1rem)] font-semibold leading-[1.12] tracking-tight text-[var(--ink)]">
             Build a college list that actually fits you.
@@ -79,7 +79,7 @@ export default function HomePage() {
 
       <footer className="border-t border-black/5 px-5 py-10 text-sm text-[var(--ink)]/55">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-display font-bold text-[var(--ink)]/80">MyUniAssist</p>
+          <p className="font-display font-bold text-[var(--ink)]/80">UniAssist</p>
           <p>University application help for building smarter lists.</p>
         </div>
       </footer>

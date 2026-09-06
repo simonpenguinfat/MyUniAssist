@@ -48,10 +48,10 @@ export function MarketingNav() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
         <Link href="/" className="flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--teal-deep)] text-sm font-extrabold text-white">
-            M
+            U
           </span>
           <span className="font-display text-lg font-bold tracking-tight text-[var(--ink)]">
-            MyUniAssist
+            UniAssist
           </span>
         </Link>
 

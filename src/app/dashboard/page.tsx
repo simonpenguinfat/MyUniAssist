@@ -22,42 +22,42 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Overview</p>
-      <h1 className="font-display mt-2 text-3xl font-bold tracking-tight text-[#13263d]">
+      <p className="text-sm font-semibold italic text-[var(--teal)]">overview</p>
+      <h1 className="font-serif mt-2 text-3xl font-semibold tracking-tight text-[var(--ink)] md:text-4xl">
         Welcome back, {name}
       </h1>
-      <p className="mt-2 text-[#5d6f82]">
+      <p className="mt-2 text-[var(--ink)]/70">
         Your personal workspace across {universities.length} campuses.
       </p>
 
       <div className="mt-8 grid gap-4 md:grid-cols-3">
         <Link
           href="/tools/common-data-set"
-          className="rounded-xl border border-[#d5dde6] bg-white p-5 transition hover:border-[#2f6fed]/40 hover:shadow-[0_10px_30px_rgba(19,38,61,0.08)]"
+          className="border-t border-[var(--ink)]/10 bg-white/70 pt-5 transition hover:border-[var(--teal)]"
         >
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#7a8b9e]">Research</p>
-          <h2 className="font-display mt-2 text-xl font-bold text-[#13263d]">Common Data Set</h2>
-          <p className="mt-2 text-sm text-[#5d6f82]">
+          <p className="text-xs font-bold tracking-[0.14em] text-[var(--teal)]">01</p>
+          <h2 className="font-display mt-2 text-xl font-bold text-[var(--ink)]">Common Data Set</h2>
+          <p className="mt-2 text-sm text-[var(--ink)]/70">
             Acceptance rates, GPA/test midpoints, and official CDS links.
           </p>
         </Link>
 
         <Link
           href="/tools/vr-tours"
-          className="rounded-xl border border-[#d5dde6] bg-white p-5 transition hover:border-[#2f6fed]/40 hover:shadow-[0_10px_30px_rgba(19,38,61,0.08)]"
+          className="border-t border-[var(--ink)]/10 bg-white/70 pt-5 transition hover:border-[var(--teal)]"
         >
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#7a8b9e]">Explore</p>
-          <h2 className="font-display mt-2 text-xl font-bold text-[#13263d]">VR tours</h2>
-          <p className="mt-2 text-sm text-[#5d6f82]">
+          <p className="text-xs font-bold tracking-[0.14em] text-[var(--teal)]">02</p>
+          <h2 className="font-display mt-2 text-xl font-bold text-[var(--ink)]">VR tours</h2>
+          <p className="mt-2 text-sm text-[var(--ink)]/70">
             Jump into each university’s official virtual campus tour.
           </p>
         </Link>
 
         <Link
           href="/tools/list-builder"
-          className="rounded-xl border border-transparent bg-[#13263d] p-5 text-white transition hover:bg-[#1a3352]"
+          className="rounded-lg bg-[var(--teal)] p-5 text-white transition hover:bg-[var(--teal-deep)]"
         >
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#8eb0ff]">Build</p>
+          <p className="text-xs font-bold tracking-[0.14em] text-[var(--citrus)]">03</p>
           <h2 className="font-display mt-2 text-xl font-bold">AI list builder</h2>
           <p className="mt-2 text-sm text-white/75">
             Generate safeties, matches, and reaches from your profile.

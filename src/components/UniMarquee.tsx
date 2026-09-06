@@ -36,7 +36,7 @@ export function UniMarquee() {
   return (
     <div className="border-y border-black/5 bg-white py-8">
       <p className="mx-auto mb-5 max-w-3xl px-5 text-center text-sm text-[var(--ink)]/55">
-        Research campuses students explore with MyUniAssist — from reaches to strong safeties.
+        Research campuses students explore with UniAssist — from reaches to strong safeties.
       </p>
       <div className="uni-marquee relative overflow-hidden">
         <div className="uni-marquee-track flex w-max gap-10 px-5">

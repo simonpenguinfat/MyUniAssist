@@ -24,7 +24,7 @@ export async function SiteHeader({ transparent = false }: { transparent?: boolea
       }
     >
       <Link href="/" className="font-display text-xl font-extrabold tracking-tight">
-        MyUniAssist
+        UniAssist
       </Link>
       <nav className="flex flex-wrap items-center gap-3 text-sm font-semibold">
         <Link href="/about" className="opacity-90 hover:opacity-100">

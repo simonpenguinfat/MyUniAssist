@@ -24,16 +24,16 @@ export function AppSidebar({
   const pathname = usePathname();
 
   return (
-    <aside className="vultr-sidebar relative flex w-[260px] shrink-0 flex-col text-[#d7e0ea]">
-      <div className="vultr-sidebar-waves pointer-events-none absolute inset-0 opacity-40" />
+    <aside className="app-sidebar relative flex w-[260px] shrink-0 flex-col text-[#d7e8eb]">
+      <div className="app-sidebar-waves pointer-events-none absolute inset-0 opacity-50" />
 
       <div className="relative z-10 flex h-full flex-col px-3 py-4">
         <Link href="/" className="mb-6 flex items-center gap-2 px-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[#2f6fed] font-display text-sm font-extrabold text-white">
-            M
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--citrus)] font-display text-sm font-extrabold text-[var(--ink)]">
+            U
           </span>
-          <span className="font-display text-[15px] font-bold tracking-[0.08em] text-white">
-            MYUNIASSIST
+          <span className="font-display text-[15px] font-bold tracking-tight text-white">
+            UniAssist
           </span>
         </Link>
 
@@ -45,7 +45,7 @@ export function AppSidebar({
           </div>
 
           <div>
-            <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7f92a8]">
+            <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8aa8b0]">
               Tools
             </p>
             <div className="space-y-1">
@@ -62,13 +62,13 @@ export function AppSidebar({
           <div className="mt-auto space-y-1 border-t border-white/10 pt-4">
             <Link
               href="/"
-              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-[#a9b7c8] transition hover:bg-white/5 hover:text-white"
+              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-[#b5c9cf] transition hover:bg-white/5 hover:text-white"
             >
               <IconHome />
               Public site
             </Link>
-            <div className="px-3 pt-2 text-xs text-[#7f92a8]">
-              <p className="truncate font-medium text-[#c5d0dc]">{name}</p>
+            <div className="px-3 pt-2 text-xs text-[#8aa8b0]">
+              <p className="truncate font-medium text-[#d7e8eb]">{name}</p>
               {email && <p className="truncate">{email}</p>}
             </div>
             <div className="px-2 pt-2">
@@ -97,8 +97,8 @@ function SideLink({
       href={href}
       className={
         active
-          ? "flex items-center gap-3 rounded-md bg-[#1e3a5f] px-3 py-2.5 text-sm font-semibold text-white"
-          : "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-[#a9b7c8] transition hover:bg-white/5 hover:text-white"
+          ? "flex items-center gap-3 rounded-md bg-[var(--teal)] px-3 py-2.5 text-sm font-semibold text-white"
+          : "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-[#b5c9cf] transition hover:bg-white/5 hover:text-white"
       }
     >
       <Icon />
