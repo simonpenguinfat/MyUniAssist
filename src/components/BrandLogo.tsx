@@ -15,18 +15,18 @@ type BrandLogoProps = {
 const sizeStyles = {
   sm: {
     wrap: "gap-2",
-    mark: "h-9 w-auto",
-    text: "text-[1.05rem] leading-none",
+    mark: "h-11 w-auto",
+    text: "text-[1.25rem] leading-none",
   },
   md: {
     wrap: "gap-2.5",
-    mark: "h-11 w-auto",
-    text: "text-xl leading-none",
+    mark: "h-12 w-auto",
+    text: "text-[1.45rem] leading-none",
   },
   lg: {
     wrap: "gap-3.5",
-    mark: "h-[4.25rem] w-auto sm:h-[5rem]",
-    text: "text-[1.85rem] leading-none sm:text-[2.15rem]",
+    mark: "h-[5.25rem] w-auto sm:h-[6.25rem]",
+    text: "text-[2.2rem] leading-none sm:text-[2.55rem]",
   },
 } as const;
 
@@ -43,11 +43,12 @@ export function BrandLogo({
     <Image
       src="/uniassist-mark.png"
       alt=""
-      width={362}
-      height={244}
+      width={724}
+      height={488}
       priority={priority}
-      sizes="80px"
-      className={`${s.mark} shrink-0`}
+      quality={100}
+      sizes={size === "lg" ? "120px" : "64px"}
+      className={`${s.mark} shrink-0 object-contain`}
       style={{ width: "auto" }}
       aria-hidden={variant === "full"}
     />
@@ -59,7 +60,9 @@ export function BrandLogo({
     ) : (
       <span className={`inline-flex shrink-0 items-center ${s.wrap} ${className}`}>
         {mark}
-        <span className={`font-serif font-semibold tracking-tight text-[#0a1c3e] ${s.text}`}>
+        <span
+          className={`font-serif font-semibold tracking-tight text-[#0a1c3e] antialiased ${s.text}`}
+        >
           UniAssist
         </span>
       </span>
