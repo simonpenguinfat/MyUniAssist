@@ -50,3 +50,23 @@ body {
 .animate-drift {
   animation: drift 18s ease-in-out infinite alternate;
 }
+
+/* Vultr-inspired signed-in shell */
+.vultr-sidebar {
+  background: #0b1a2b;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  min-height: 100vh;
+}
+
+.vultr-sidebar-waves {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='600' viewBox='0 0 240 600'%3E%3Cpath fill='none' stroke='%232f6fed' stroke-opacity='0.18' stroke-width='1' d='M-20 40c40 0 40 30 80 30s40-30 80-30 40 30 80 30 40-30 80-30M-20 120c40 0 40 30 80 30s40-30 80-30 40 30 80 30 40-30 80-30M-20 200c40 0 40 30 80 30s40-30 80-30 40 30 80 30 40-30 80-30M-20 280c40 0 40 30 80 30s40-30 80-30 40 30 80 30 40-30 80-30M-20 360c40 0 40 30 80 30s40-30 80-30 40 30 80 30 40-30 80-30M-20 440c40 0 40 30 80 30s40-30 80-30 40 30 80 30 40-30 80-30M-20 520c40 0 40 30 80 30s40-30 80-30 40 30 80 30 40-30 80-30'/%3E%3C/svg%3E");
+  background-size: 240px 600px;
+  background-repeat: repeat;
+}
+
+@media (max-width: 900px) {
+  .vultr-sidebar {
+    width: 100%;
+    min-height: auto;
+  }
+}
