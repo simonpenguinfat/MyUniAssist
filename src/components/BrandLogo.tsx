@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 type BrandLogoProps = {
@@ -38,18 +39,19 @@ export function BrandLogo({
 }: BrandLogoProps) {
   const s = sizeStyles[size];
 
-  // SVG stays sharp at every size (screenshot PNG softens when scaled).
+  // Original artwork PNG (transparent) — served unoptimized so Next doesn't recompress it.
   const mark = (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src="/uniassist-mark.svg"
+    <Image
+      src="/uniassist-mark.png"
       alt=""
-      width={200}
-      height={150}
+      width={1097}
+      height={725}
+      priority={priority}
+      unoptimized
+      sizes={size === "lg" ? "140px" : "72px"}
       className={`${s.mark} shrink-0 object-contain`}
+      style={{ width: "auto" }}
       aria-hidden={variant === "full"}
-      decoding="async"
-      {...(priority ? { fetchPriority: "high" as const } : {})}
     />
   );
 
