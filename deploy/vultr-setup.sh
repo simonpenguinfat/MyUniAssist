@@ -22,7 +22,7 @@ apt-get update
 apt-get install -y nginx
 
 cd "$APP_DIR"
-npm ci
+npm install
 npm run build
 
 if [[ ! -f "$APP_DIR/.env.local" && ! -f "$APP_DIR/.env.production.local" ]]; then
