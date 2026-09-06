@@ -1,11 +1,11 @@
-import { SiteHeader } from "@/components/SiteHeader";
+import { MarketingNav } from "@/components/MarketingNav";
 
 export default function AboutPage() {
   return (
-    <>
-      <SiteHeader />
-      <section className="mx-auto max-w-2xl px-[6vw] py-16">
-        <h1 className="font-display text-4xl font-bold tracking-tight">
+    <div className="bg-white">
+      <MarketingNav />
+      <section className="mx-auto max-w-2xl px-5 py-16">
+        <h1 className="font-serif text-4xl font-semibold tracking-tight">
           Built for the college list phase
         </h1>
         <p className="mt-4 text-lg text-[var(--ink)]/80">
@@ -18,6 +18,6 @@ export default function AboutPage() {
           campuses into safety, match, and reach.
         </p>
       </section>
-    </>
+    </div>
   );
 }

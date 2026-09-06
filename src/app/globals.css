@@ -19,6 +19,7 @@
   --color-citrus: var(--citrus);
   --font-sans: var(--font-body);
   --font-display: var(--font-display);
+  --font-serif: var(--font-serif);
 }
 
 body {
@@ -33,6 +34,10 @@ body {
   font-family: var(--font-display), system-ui, sans-serif;
 }
 
+.font-serif {
+  font-family: var(--font-serif), Georgia, serif;
+}
+
 @keyframes rise {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
@@ -43,12 +48,29 @@ body {
   to { transform: scale(1.08) translate3d(-1.5%, -1%, 0); }
 }
 
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
 .animate-rise {
   animation: rise 700ms ease both;
 }
 
 .animate-drift {
   animation: drift 18s ease-in-out infinite alternate;
+}
+
+.uni-marquee {
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.uni-marquee-track {
+  animation: marquee 42s linear infinite;
+}
+
+.uni-marquee:hover .uni-marquee-track {
+  animation-play-state: paused;
 }
 
 /* Vultr-inspired signed-in shell */

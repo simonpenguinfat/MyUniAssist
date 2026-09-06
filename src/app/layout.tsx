@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Figtree, Syne } from "next/font/google";
+import { Figtree, Source_Serif_4, Syne } from "next/font/google";
 import "./globals.css";
 
 const body = Figtree({
@@ -13,6 +13,12 @@ const display = Syne({
   weight: ["600", "700", "800"],
 });
 
+const serif = Source_Serif_4({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  weight: ["500", "600", "700"],
+});
+
 export const metadata: Metadata = {
   title: "MyUniAssist — University application help",
   description:
@@ -21,8 +27,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${body.variable} ${display.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html
+      lang="en"
+      className={`${body.variable} ${display.variable} ${serif.variable} h-full antialiased`}
+    >
+      <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
 }

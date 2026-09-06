@@ -1,72 +1,88 @@
 import Link from "next/link";
-import { SiteHeader } from "@/components/SiteHeader";
+import { MarketingNav } from "@/components/MarketingNav";
+import { UniMarquee } from "@/components/UniMarquee";
 
 export default function HomePage() {
   return (
-    <>
-      <SiteHeader transparent />
-      <section className="relative min-h-screen overflow-hidden text-white">
+    <div className="bg-white text-[var(--ink)]">
+      <MarketingNav />
+
+      <section className="relative min-h-[84vh] overflow-hidden">
         <div
-          className="animate-drift absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage:
-              "linear-gradient(180deg, rgba(6,47,56,0.25) 0%, rgba(6,47,56,0.78) 62%, rgba(6,47,56,0.92) 100%), url(https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=2000&q=80)",
+              "linear-gradient(105deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.88) 42%, rgba(255,255,255,0.35) 70%, rgba(6,47,56,0.25) 100%), url(https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=2000&q=80)",
           }}
         />
-        <div className="animate-rise relative z-10 max-w-[46rem] px-[6vw] pb-16 pt-36">
-          <p className="font-display text-[clamp(2.6rem,7vw,5rem)] font-extrabold leading-[0.95] tracking-tight">
+        <div className="relative z-10 mx-auto flex min-h-[84vh] max-w-6xl flex-col justify-center px-5 py-20">
+          <p className="font-display text-[clamp(2.8rem,7vw,4.8rem)] font-extrabold leading-[0.92] tracking-tight text-[var(--teal-deep)]">
             MyUniAssist
           </p>
-          <h1 className="font-display mt-2 max-w-[18ch] text-[clamp(1.5rem,3.4vw,2.35rem)] font-bold tracking-tight">
-            Build a college list that fits who you are.
+          <h1 className="font-serif mt-4 max-w-[16ch] text-[clamp(1.85rem,4vw,3.1rem)] font-semibold leading-[1.12] tracking-tight text-[var(--ink)]">
+            Build a college list that actually fits you.
           </h1>
-          <p className="mt-3 max-w-[38rem] text-lg text-white/90">
-            Sign in for Common Data Set lookups, campus VR tours, and an AI-assisted list builder
-            tuned to your grades, activities, and goals.
+          <p className="mt-4 max-w-lg text-lg text-[var(--ink)]/70">
+            CDS research, campus VR tours, and an AI list builder — in one signed-in workspace.
           </p>
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
               href="/signup"
-              className="rounded-full bg-[var(--citrus)] px-5 py-3 font-bold text-[var(--ink)]"
+              className="rounded-lg bg-[var(--teal)] px-6 py-3.5 text-base font-bold text-white"
             >
-              Get started
+              Get started free
             </Link>
-            <Link href="/signin" className="rounded-full border border-white/70 px-5 py-3 font-bold">
-              Sign in
-            </Link>
+            <p className="text-sm text-[var(--ink)]/55">No credit card required.</p>
           </div>
         </div>
       </section>
 
-      <section className="bg-[var(--paper)] px-[6vw] py-16">
-        <h2 className="font-display text-3xl font-bold tracking-tight">Three tools. One account.</h2>
-        <p className="mt-2 max-w-xl text-[var(--ink)]/75">
-          After you sign in, MyUniAssist unlocks the research stack applicants actually use.
-        </p>
-        <div className="mt-8 grid gap-6 md:grid-cols-3">
+      <UniMarquee />
+
+      <section className="mx-auto max-w-6xl px-5 py-20">
+        <p className="text-sm font-semibold italic text-[var(--teal)]">how it works</p>
+        <h2 className="font-serif mt-2 max-w-xl text-3xl font-semibold tracking-tight md:text-4xl">
+          What you get after you sign in
+        </h2>
+        <div className="mt-10 grid gap-8 md:grid-cols-3">
           {[
-            ["Common Data Set", "Scan acceptance rates, mid-50 test scores, and official CDS links."],
-            ["VR campus tours", "Jump into each university’s official virtual tour from one place."],
             [
-              "AI list builder",
-              "Balance safeties, matches, and reaches using academics, personality, location, and interests.",
+              "01",
+              "Common Data Set",
+              "Compare acceptance rates, mid-50 scores, and jump to official CDS documents.",
             ],
-          ].map(([title, body], i) => (
-            <article
-              key={title}
-              className="animate-rise border-t-2 border-[var(--teal)] pt-4"
-              style={{ animationDelay: `${i * 120}ms` }}
-            >
-              <h3 className="font-display text-xl font-bold">{title}</h3>
-              <p className="mt-2 text-[var(--ink)]/75">{body}</p>
+            [
+              "02",
+              "VR campus tours",
+              "Tour campuses from one list — each link goes to the school’s official virtual visit.",
+            ],
+            [
+              "03",
+              "AI list builder",
+              "Turn grades, activities, personality, and location into safeties, matches, and reaches.",
+            ],
+          ].map(([num, title, body]) => (
+            <article key={num} className="border-t border-[var(--ink)]/10 pt-5">
+              <p className="text-xs font-bold tracking-[0.14em] text-[var(--teal)]">{num}</p>
+              <h3 className="font-display mt-2 text-xl font-bold">{title}</h3>
+              <p className="mt-2 text-[var(--ink)]/70">{body}</p>
             </article>
           ))}
         </div>
+        <Link
+          href="/signup"
+          className="mt-10 inline-flex rounded-lg bg-[var(--citrus)] px-5 py-3 font-bold text-[var(--ink)]"
+        >
+          Create your account
+        </Link>
       </section>
 
-      <footer className="px-[6vw] py-10 text-sm text-[var(--ink)]/60">
-        MyUniAssist — Next.js + Tailwind + Supabase. Deploy on Vercel.
+      <footer className="border-t border-black/5 px-5 py-10 text-sm text-[var(--ink)]/55">
+        <div className="mx-auto flex max-w-6xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-display font-bold text-[var(--ink)]/80">MyUniAssist</p>
+          <p>University application help for building smarter lists.</p>
+        </div>
       </footer>
-    </>
+    </div>
   );
 }
