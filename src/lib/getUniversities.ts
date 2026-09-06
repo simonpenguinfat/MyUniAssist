@@ -8,10 +8,12 @@ type DbRow = {
   city: string;
   state: string;
   region: string;
-  acceptance_rate: number;
-  avg_gpa: number;
-  sat_mid: number;
-  act_mid: number;
+  us_news_rank?: number | null;
+  acceptance_rate: number | null;
+  avg_gpa: number | null;
+  sat_mid: number | null;
+  act_mid: number | null;
+  tuition_usd?: number | null;
   setting: string;
   interests: string;
   personality_fit: string;
@@ -29,10 +31,12 @@ function mapRow(row: DbRow): University {
     city: row.city,
     state: row.state,
     region: row.region,
-    acceptanceRate: Number(row.acceptance_rate),
-    avgGpa: Number(row.avg_gpa),
-    satMid: Number(row.sat_mid),
-    actMid: Number(row.act_mid),
+    usNewsRank: row.us_news_rank ?? null,
+    acceptanceRate: row.acceptance_rate == null ? null : Number(row.acceptance_rate),
+    avgGpa: row.avg_gpa == null ? null : Number(row.avg_gpa),
+    satMid: row.sat_mid == null ? null : Number(row.sat_mid),
+    actMid: row.act_mid == null ? null : Number(row.act_mid),
+    tuitionUsd: row.tuition_usd == null ? null : Number(row.tuition_usd),
     setting: row.setting,
     interests: row.interests,
     personalityFit: row.personality_fit,

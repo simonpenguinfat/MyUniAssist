@@ -242,7 +242,9 @@ export function ListBuilderForm({ universities }: { universities: University[] }
                 <h2 className="font-display mt-2 text-xl font-bold">{r.university.name}</h2>
                 <p className="text-sm text-[var(--ink)]/75">
                   {r.university.city}, {r.university.state} ·{" "}
-                  {(r.university.acceptanceRate * 100).toFixed(1)}% accept
+                  {r.university.acceptanceRate == null
+                    ? "accept rate n/a"
+                    : `${(r.university.acceptanceRate * 100).toFixed(1)}% accept`}
                 </p>
                 <p className="mt-1 text-sm text-[var(--ink)]/65">{r.rationale}</p>
               </div>

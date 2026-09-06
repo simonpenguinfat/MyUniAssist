@@ -28,14 +28,14 @@ export function AppSidebar({
       <div className="vultr-sidebar-waves pointer-events-none absolute inset-0 opacity-40" />
 
       <div className="relative z-10 flex h-full flex-col px-3 py-4">
-        <div className="mb-6 flex items-center gap-2 px-2">
+        <Link href="/" className="mb-6 flex items-center gap-2 px-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[#2f6fed] font-display text-sm font-extrabold text-white">
             M
           </span>
-          <Link href="/dashboard" className="font-display text-[15px] font-bold tracking-[0.08em] text-white">
+          <span className="font-display text-[15px] font-bold tracking-[0.08em] text-white">
             MYUNIASSIST
-          </Link>
-        </div>
+          </span>
+        </Link>
 
         <nav className="flex flex-1 flex-col gap-6 overflow-y-auto">
           <div className="space-y-1">

@@ -46,14 +46,25 @@ function overlapScore(a: Set<string>, b: Set<string>, maxPts: number) {
   return Math.min(maxPts, 4 + hits * 5);
 }
 
+/** Use CDS values when present; otherwise neutral midpoints for scoring only. */
+function stats(u: University) {
+  return {
+    avgGpa: u.avgGpa ?? 3.7,
+    satMid: u.satMid ?? 1300,
+    actMid: u.actMid ?? 28,
+    acceptanceRate: u.acceptanceRate ?? 0.35,
+  };
+}
+
 function academicFit(input: ListBuilderInput, u: University) {
-  const gpaDelta = input.gpa - u.avgGpa;
+  const s = stats(u);
+  const gpaDelta = input.gpa - s.avgGpa;
   const gpaPts = Math.round(clamp(18 + gpaDelta * 28, 0, 30));
   let testPts = 12;
   if (input.sat != null) {
-    testPts = Math.round(clamp(14 + ((input.sat - u.satMid) / 80) * 10, 0, 22));
+    testPts = Math.round(clamp(14 + ((input.sat - s.satMid) / 80) * 10, 0, 22));
   } else if (input.act != null) {
-    testPts = Math.round(clamp(14 + ((input.act - u.actMid) / 2) * 10, 0, 22));
+    testPts = Math.round(clamp(14 + ((input.act - s.actMid) / 2) * 10, 0, 22));
   }
   return gpaPts + testPts;
 }
@@ -63,15 +74,16 @@ function categorize(
   u: University,
   academicScore: number
 ): RankedUniversity["category"] {
-  const gpaEdge = input.gpa - u.avgGpa;
+  const s = stats(u);
+  const gpaEdge = input.gpa - s.avgGpa;
   let testEdge = 0;
-  if (input.sat != null) testEdge = input.sat - u.satMid;
-  else if (input.act != null) testEdge = (input.act - u.actMid) * 40;
+  if (input.sat != null) testEdge = input.sat - s.satMid;
+  else if (input.act != null) testEdge = (input.act - s.actMid) * 40;
 
-  if (u.acceptanceRate <= 0.12 || academicScore < 28 || (gpaEdge < -0.15 && testEdge < -40)) {
+  if (s.acceptanceRate <= 0.12 || academicScore < 28 || (gpaEdge < -0.15 && testEdge < -40)) {
     return "Reach";
   }
-  if (u.acceptanceRate >= 0.45 && academicScore >= 38 && gpaEdge >= 0.05) return "Safety";
+  if (s.acceptanceRate >= 0.45 && academicScore >= 38 && gpaEdge >= 0.05) return "Safety";
   if (academicScore >= 42 && (gpaEdge >= 0.12 || testEdge >= 60)) return "Safety";
   if (academicScore <= 32 || gpaEdge < -0.05) return "Reach";
   return "Match";
@@ -91,6 +103,11 @@ function locationFit(location: string, u: University) {
   return 5;
 }
 
+function formatAccept(rate: number | null) {
+  if (rate == null) return "—";
+  return `${(rate * 100).toFixed(1)}%`;
+}
+
 export function buildUniversityList(
   input: ListBuilderInput,
   catalog: University[] = UNIVERSITIES
@@ -101,9 +118,21 @@ export function buildUniversityList(
   const ranked: RankedUniversity[] = [];
 
   for (const u of catalog) {
-    const acceptPct = u.acceptanceRate * 100;
-    if (input.minAcceptanceRate != null && acceptPct < input.minAcceptanceRate) continue;
-    if (input.maxAcceptanceRate != null && acceptPct > input.maxAcceptanceRate) continue;
+    const acceptPct = u.acceptanceRate == null ? null : u.acceptanceRate * 100;
+    if (
+      acceptPct != null &&
+      input.minAcceptanceRate != null &&
+      acceptPct < input.minAcceptanceRate
+    ) {
+      continue;
+    }
+    if (
+      acceptPct != null &&
+      input.maxAcceptanceRate != null &&
+      acceptPct > input.maxAcceptanceRate
+    ) {
+      continue;
+    }
 
     const academicScore = academicFit(input, u);
     const locScore = locationFit(input.locationInterest, u);
@@ -131,7 +160,7 @@ export function buildUniversityList(
       university: u,
       category,
       fitScore,
-      rationale: `${category} · academics ${academicScore}/52 · location ${locScore}/20 · interests ${interestScore}/28 · accept ${(u.acceptanceRate * 100).toFixed(1)}%`,
+      rationale: `${category} · academics ${academicScore}/52 · location ${locScore}/20 · interests ${interestScore}/28 · accept ${formatAccept(u.acceptanceRate)}`,
     });
   }
 

@@ -1,29 +1,35 @@
-const NAMES = [
-  "Stanford",
-  "MIT",
-  "Harvard",
-  "Yale",
-  "Princeton",
-  "Berkeley",
-  "UCLA",
-  "Michigan",
-  "UVa",
-  "UNC",
-  "Georgia Tech",
-  "UT Austin",
-  "UW",
-  "Wisconsin",
-  "Ohio State",
-  "Penn State",
-  "Purdue",
-  "Florida",
-  "UIUC",
-  "NYU",
-  "USC",
-  "CMU",
-  "Duke",
-  "Northwestern",
-];
+import { UNIVERSITIES } from "@/lib/universities";
+
+const SHORT: Record<string, string> = {
+  "Stanford University": "Stanford",
+  "Massachusetts Institute of Technology": "MIT",
+  "Harvard University": "Harvard",
+  "Yale University": "Yale",
+  "Princeton University": "Princeton",
+  "University of California, Berkeley": "Berkeley",
+  "University of California, Los Angeles": "UCLA",
+  "University of Michigan, Ann Arbor": "Michigan",
+  "University of Virginia": "UVa",
+  "University of North Carolina at Chapel Hill": "UNC",
+  "Georgia Institute of Technology": "Georgia Tech",
+  "University of Texas at Austin": "UT Austin",
+  "University of Washington": "UW",
+  "University of Wisconsin-Madison": "Wisconsin",
+  "Ohio State University": "Ohio State",
+  "Pennsylvania State University": "Penn State",
+  "Purdue University": "Purdue",
+  "University of Florida": "Florida",
+  "University of Illinois Urbana-Champaign": "UIUC",
+  "New York University": "NYU",
+  "University of Southern California": "USC",
+  "Carnegie Mellon University": "CMU",
+  "Duke University": "Duke",
+  "Northwestern University": "Northwestern",
+};
+
+const NAMES = UNIVERSITIES.filter((u) => SHORT[u.name])
+  .slice(0, 24)
+  .map((u) => SHORT[u.name] || u.name);
 
 export function UniMarquee() {
   const row = [...NAMES, ...NAMES];
