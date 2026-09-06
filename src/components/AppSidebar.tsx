@@ -30,7 +30,7 @@ export function AppSidebar({
 
       <div className="relative z-10 flex h-full flex-col px-3 py-4">
         <div className="mb-6 rounded-lg bg-white/95 px-2 py-1.5">
-          <BrandLogo variant="full" className="h-9 w-auto max-w-full" priority />
+          <BrandLogo variant="full" size="sm" priority />
         </div>
 
         <nav className="flex flex-1 flex-col gap-6 overflow-y-auto">

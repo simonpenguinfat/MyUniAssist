@@ -24,7 +24,7 @@ export async function SiteHeader({ transparent = false }: { transparent?: boolea
           : "sticky top-0 z-20 flex items-center justify-between gap-4 border-b border-[var(--line)] bg-[rgba(245,248,249,0.88)] px-[6vw] py-4 backdrop-blur"
       }
     >
-      <BrandLogo variant="full" className="h-9 w-auto max-w-[12rem]" priority />
+      <BrandLogo variant="full" size="sm" priority />
       <nav className="flex flex-wrap items-center gap-3 text-sm font-semibold">
         <Link href="/about" className="opacity-90 hover:opacity-100">
           About
