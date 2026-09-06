@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { SignOutButton } from "@/components/SignOutButton";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export async function SiteHeader({ transparent = false }: { transparent?: boolean }) {
   let email: string | null = null;
@@ -23,9 +24,7 @@ export async function SiteHeader({ transparent = false }: { transparent?: boolea
           : "sticky top-0 z-20 flex items-center justify-between gap-4 border-b border-[var(--line)] bg-[rgba(245,248,249,0.88)] px-[6vw] py-4 backdrop-blur"
       }
     >
-      <Link href="/" className="font-display text-xl font-extrabold tracking-tight">
-        UniAssist
-      </Link>
+      <BrandLogo variant="full" className="h-10 w-auto" priority />
       <nav className="flex flex-wrap items-center gap-3 text-sm font-semibold">
         <Link href="/about" className="opacity-90 hover:opacity-100">
           About

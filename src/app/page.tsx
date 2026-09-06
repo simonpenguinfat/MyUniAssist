@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MarketingNav } from "@/components/MarketingNav";
 import { UniMarquee } from "@/components/UniMarquee";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export default function HomePage() {
   return (
@@ -16,10 +17,13 @@ export default function HomePage() {
           }}
         />
         <div className="relative z-10 mx-auto flex min-h-[84vh] max-w-6xl flex-col justify-center px-5 py-20">
-          <p className="font-display text-[clamp(2.8rem,7vw,4.8rem)] font-extrabold leading-[0.92] tracking-tight text-[var(--teal-deep)]">
-            UniAssist
-          </p>
-          <h1 className="font-serif mt-4 max-w-[16ch] text-[clamp(1.85rem,4vw,3.1rem)] font-semibold leading-[1.12] tracking-tight text-[var(--ink)]">
+          <BrandLogo
+            variant="full"
+            href={null}
+            priority
+            className="h-[clamp(5.5rem,14vw,9rem)] w-auto"
+          />
+          <h1 className="font-serif mt-6 max-w-[16ch] text-[clamp(1.85rem,4vw,3.1rem)] font-semibold leading-[1.12] tracking-tight text-[var(--ink)]">
             Build a college list that actually fits you.
           </h1>
           <p className="mt-4 max-w-lg text-lg text-[var(--ink)]/70">
@@ -78,8 +82,8 @@ export default function HomePage() {
       </section>
 
       <footer className="border-t border-black/5 px-5 py-10 text-sm text-[var(--ink)]/55">
-        <div className="mx-auto flex max-w-6xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-display font-bold text-[var(--ink)]/80">UniAssist</p>
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <BrandLogo variant="full" className="h-12 w-auto" />
           <p>University application help for building smarter lists.</p>
         </div>
       </footer>

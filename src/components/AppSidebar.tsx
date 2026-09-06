@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SignOutButton } from "@/components/SignOutButton";
+import { BrandLogo } from "@/components/BrandLogo";
 
 const primary = [
   { href: "/dashboard", label: "Dashboard", icon: IconGrid },
@@ -28,14 +29,9 @@ export function AppSidebar({
       <div className="app-sidebar-waves pointer-events-none absolute inset-0 opacity-50" />
 
       <div className="relative z-10 flex h-full flex-col px-3 py-4">
-        <Link href="/" className="mb-6 flex items-center gap-2 px-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--citrus)] font-display text-sm font-extrabold text-[var(--ink)]">
-            U
-          </span>
-          <span className="font-display text-[15px] font-bold tracking-tight text-white">
-            UniAssist
-          </span>
-        </Link>
+        <div className="mb-6 rounded-lg bg-white/95 px-2 py-1.5">
+          <BrandLogo variant="full" className="h-12 w-auto" priority />
+        </div>
 
         <nav className="flex flex-1 flex-col gap-6 overflow-y-auto">
           <div className="space-y-1">

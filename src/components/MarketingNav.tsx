@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { BrandLogo } from "@/components/BrandLogo";
 
 const tools = [
   {
@@ -46,14 +47,7 @@ export function MarketingNav() {
   return (
     <header className="sticky top-0 z-40 border-b border-black/5 bg-white/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--teal-deep)] text-sm font-extrabold text-white">
-            U
-          </span>
-          <span className="font-display text-lg font-bold tracking-tight text-[var(--ink)]">
-            UniAssist
-          </span>
-        </Link>
+        <BrandLogo variant="full" className="h-11 w-auto" priority />
 
         <nav className="relative flex items-center gap-6 text-sm font-semibold text-[var(--ink)]/80" ref={panelRef}>
           <button
