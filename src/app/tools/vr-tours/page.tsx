@@ -1,5 +1,5 @@
 import { SiteHeader } from "@/components/SiteHeader";
-import { searchUniversities } from "@/lib/universities";
+import { getUniversities, searchUniversityList } from "@/lib/getUniversities";
 
 export default async function VrToursPage({
   searchParams,
@@ -7,7 +7,8 @@ export default async function VrToursPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q = "" } = await searchParams;
-  const universities = searchUniversities(q);
+  const all = await getUniversities();
+  const universities = searchUniversityList(all, q);
 
   return (
     <>
@@ -15,7 +16,8 @@ export default async function VrToursPage({
       <section className="px-[6vw] py-12">
         <h1 className="font-display text-4xl font-bold tracking-tight">VR campus tours</h1>
         <p className="mt-2 text-[var(--ink)]/75">
-          Direct links to each university’s official virtual tour or visit experience.
+          Direct links to each university’s official virtual tour or visit experience. Edit links in
+          Supabase <code>universities</code> or <code>src/lib/universities.ts</code>.
         </p>
         <form className="mt-5 flex flex-col gap-2 sm:flex-row">
           <input

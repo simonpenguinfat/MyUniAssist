@@ -1,7 +1,10 @@
 import { SiteHeader } from "@/components/SiteHeader";
 import { ListBuilderForm } from "@/components/ListBuilderForm";
+import { getUniversities } from "@/lib/getUniversities";
 
-export default function ListBuilderPage() {
+export default async function ListBuilderPage() {
+  const universities = await getUniversities();
+
   return (
     <>
       <SiteHeader />
@@ -14,7 +17,7 @@ export default function ListBuilderPage() {
           acceptance rate — then sort into safeties, matches, and reaches.
         </p>
         <div className="mt-8">
-          <ListBuilderForm />
+          <ListBuilderForm universities={universities} />
         </div>
       </section>
     </>

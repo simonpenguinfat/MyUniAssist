@@ -1,66 +1,74 @@
 # MyUniAssist
 
-University application help site — same architecture pattern as nobscomputers:
+University application help — Next.js + Tailwind + Supabase (+ optional Vultr).
+
+Repo: https://github.com/simonpenguinfat/MyUniAssist
 
 | Piece | Role |
 |---|---|
 | **Next.js** | Website + tools |
 | **Tailwind CSS** | Styling |
-| **Supabase** | Login (email + Google), user data |
-| **Vercel** | Hosting when you go live |
+| **Supabase** | Login (email + Google), optional universities DB |
+| **Vercel or Vultr** | Hosting |
 
 ## Features
 
-- Sign up / sign in (email) + **Continue with Google**
+- Email sign up / sign in + Google OAuth
 - Common Data Set browser
-- VR campus tour links
+- VR campus tour links (`vrTourUrl`)
 - AI list builder (safeties / matches / reaches)
+
+## Edit school / VR tour data
+
+**Option A (quick):** edit `src/lib/universities.ts` — change `vrTourUrl`, CDS links, stats, etc.
+
+**Option B (Supabase DB):**
+1. Run `supabase/schema.sql` in the Supabase SQL editor
+2. Insert/update rows in the `universities` table (including `vr_tour_url`)
+3. The app prefers Supabase data when the table has rows; otherwise it uses the local file
 
 ## Local setup
 
 ```bash
 npm install
 cp .env.local.example .env.local
-# edit .env.local with your Supabase URL + anon key
+# set NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open http://localhost:3000
 
-### Supabase
+### Supabase Auth (Google)
 
-1. Create a project at [supabase.com](https://supabase.com).
-2. Project Settings → API → copy **Project URL** and **anon public** key into `.env.local`.
-3. Authentication → Providers → enable **Google** (add Google OAuth client ID/secret).
-4. Authentication → URL configuration → add:
-   - `http://localhost:3000/auth/callback`
-   - `https://YOUR_VERCEL_DOMAIN/auth/callback`
-5. Optional: run `supabase/schema.sql` in the SQL editor.
+1. Authentication → Providers → Google → enable + paste Google Client ID/Secret  
+2. Google Cloud redirect URI: `https://YOUR_REF.supabase.co/auth/v1/callback`  
+3. Supabase URL config redirect: `http://localhost:3000/auth/callback` (and production URL later)
 
-Campus tool data ships in `src/lib/universities.ts` so the tools work even before you seed Supabase tables.
+## Deploy
 
-### Google Cloud OAuth
+### Vercel (easiest)
 
-Authorized redirect URI for Supabase Google provider:
+1. Import the GitHub repo in Vercel  
+2. Add env vars `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`  
+3. Deploy  
 
-`https://YOUR_PROJECT_REF.supabase.co/auth/v1/callback`
+### Vultr VM
 
-## Deploy on Vercel
+1. Point domain DNS **A @** and **A www** to the Vultr IP (Web Hosting Canada DNS Zone Editor)  
+2. SSH in, clone the repo, create `.env.local`  
+3. Run `bash deploy/vultr-setup.sh`  
+4. Optional: `certbot --nginx -d yourdomain.com`  
 
-1. Push this repo to GitHub.
-2. Import the repo in Vercel.
-3. Add env vars: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
-4. Deploy.
+Open firewall **TCP 22** (SSH), **80**, **443**.
 
-## Edit in Cursor
+## Project map
 
 | Change | Where |
 |---|---|
 | Pages | `src/app/**` |
-| UI components | `src/components/**` |
-| University data / matching | `src/lib/universities.ts`, `src/lib/listBuilder.ts` |
-| Auth helpers | `src/lib/supabase/**` |
-
-## Legacy Java version
-
-The previous Spring Boot build is archived under `legacy-java/` (not used by this app).
+| UI | `src/components/**` |
+| Local campus seed | `src/lib/universities.ts` |
+| List matching | `src/lib/listBuilder.ts` |
+| Load from Supabase | `src/lib/getUniversities.ts` |
+| Auth | `src/lib/supabase/**`, `src/components/AuthPanel.tsx` |
+| Vultr script | `deploy/vultr-setup.sh` |

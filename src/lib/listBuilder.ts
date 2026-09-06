@@ -91,13 +91,16 @@ function locationFit(location: string, u: University) {
   return 5;
 }
 
-export function buildUniversityList(input: ListBuilderInput): RankedUniversity[] {
+export function buildUniversityList(
+  input: ListBuilderInput,
+  catalog: University[] = UNIVERSITIES
+): RankedUniversity[] {
   const interestTokens = tokenize(input.universityInterests);
   const ecTokens = tokenize(input.extracurriculars);
   const personality = input.personality.trim().toLowerCase();
   const ranked: RankedUniversity[] = [];
 
-  for (const u of UNIVERSITIES) {
+  for (const u of catalog) {
     const acceptPct = u.acceptanceRate * 100;
     if (input.minAcceptanceRate != null && acceptPct < input.minAcceptanceRate) continue;
     if (input.maxAcceptanceRate != null && acceptPct > input.maxAcceptanceRate) continue;

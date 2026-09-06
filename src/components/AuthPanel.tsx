@@ -1,12 +1,14 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { FormEvent, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 
 export function AuthPanel({ mode }: { mode: "signin" | "signup" }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextPath = safeNext(searchParams.get("next"));
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,6 +16,12 @@ export function AuthPanel({ mode }: { mode: "signin" | "signup" }) {
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const configured = isSupabaseConfigured();
+
+  useEffect(() => {
+    if (searchParams.get("error") === "oauth") {
+      setError("Google sign-in failed. Try again or use email.");
+    }
+  }, [searchParams]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -33,14 +41,16 @@ export function AuthPanel({ mode }: { mode: "signin" | "signup" }) {
           options: { data: { full_name: fullName } },
         });
         if (signUpError) throw signUpError;
-        setMessage("Account created. Check your email if confirmation is required, then sign in.");
+        setMessage(
+          "Account created. Check your email if confirmation is required, then sign in."
+        );
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (signInError) throw signInError;
-        router.push("/dashboard");
+        router.push(nextPath);
         router.refresh();
       }
     } catch (err) {
@@ -60,7 +70,9 @@ export function AuthPanel({ mode }: { mode: "signin" | "signup" }) {
     const origin = window.location.origin;
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${origin}/auth/callback` },
+      options: {
+        redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
+      },
     });
     if (oauthError) setError(oauthError.message);
   }
@@ -97,7 +109,7 @@ export function AuthPanel({ mode }: { mode: "signin" | "signup" }) {
           <label className="grid gap-1 text-sm font-semibold">
             Full name
             <input
-              className="rounded-xl border border-[var(--line)] px-3 py-3"
+              className="rounded-xl border border-[var(--line)] bg-white px-3 py-3"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
@@ -108,7 +120,7 @@ export function AuthPanel({ mode }: { mode: "signin" | "signup" }) {
           Email
           <input
             type="email"
-            className="rounded-xl border border-[var(--line)] px-3 py-3"
+            className="rounded-xl border border-[var(--line)] bg-white px-3 py-3"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -119,7 +131,7 @@ export function AuthPanel({ mode }: { mode: "signin" | "signup" }) {
           <input
             type="password"
             minLength={8}
-            className="rounded-xl border border-[var(--line)] px-3 py-3"
+            className="rounded-xl border border-[var(--line)] bg-white px-3 py-3"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -149,4 +161,11 @@ export function AuthPanel({ mode }: { mode: "signin" | "signup" }) {
       </p>
     </section>
   );
+}
+
+function safeNext(raw: string | null) {
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) {
+    return "/dashboard";
+  }
+  return raw;
 }

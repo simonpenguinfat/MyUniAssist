@@ -2,7 +2,7 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { UNIVERSITIES } from "@/lib/universities";
+import { getUniversities } from "@/lib/getUniversities";
 
 export default async function DashboardPage() {
   let name = "Student";
@@ -19,6 +19,8 @@ export default async function DashboardPage() {
     }
   }
 
+  const universities = await getUniversities();
+
   return (
     <>
       <SiteHeader />
@@ -30,7 +32,7 @@ export default async function DashboardPage() {
           Welcome back, {name}
         </h1>
         <p className="mt-2 text-[var(--ink)]/75">
-          Your personal workspace across {UNIVERSITIES.length} campuses.
+          Your personal workspace across {universities.length} campuses.
         </p>
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">

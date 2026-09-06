@@ -1,5 +1,5 @@
 import { SiteHeader } from "@/components/SiteHeader";
-import { searchUniversities } from "@/lib/universities";
+import { getUniversities, searchUniversityList } from "@/lib/getUniversities";
 
 export default async function CommonDataSetPage({
   searchParams,
@@ -7,7 +7,8 @@ export default async function CommonDataSetPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q = "" } = await searchParams;
-  const universities = searchUniversities(q);
+  const all = await getUniversities();
+  const universities = searchUniversityList(all, q);
 
   return (
     <>
@@ -57,7 +58,12 @@ export default async function CommonDataSetPage({
                   <td className="px-4 py-3">{u.satMid}</td>
                   <td className="px-4 py-3">{u.actMid}</td>
                   <td className="px-4 py-3">
-                    <a href={u.cdsUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--teal)]">
+                    <a
+                      href={u.cdsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-[var(--teal)]"
+                    >
                       Open CDS
                     </a>
                   </td>

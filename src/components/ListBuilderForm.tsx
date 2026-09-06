@@ -6,8 +6,9 @@ import {
   type ListBuilderInput,
   type RankedUniversity,
 } from "@/lib/listBuilder";
+import type { University } from "@/lib/universities";
 
-export function ListBuilderForm() {
+export function ListBuilderForm({ universities }: { universities: University[] }) {
   const [results, setResults] = useState<RankedUniversity[] | null>(null);
   const [form, setForm] = useState<ListBuilderInput>({
     extracurriculars: "research, clubs, service",
@@ -36,7 +37,7 @@ export function ListBuilderForm() {
       alert("Enter an SAT or ACT score (or both).");
       return;
     }
-    setResults(buildUniversityList(form));
+    setResults(buildUniversityList(form, universities));
   }
 
   return (
@@ -128,6 +129,22 @@ export function ListBuilderForm() {
                 )
               )}
             </select>
+          </label>
+          <label className="grid gap-1 text-sm font-semibold">
+            Min acceptance rate %
+            <input
+              type="number"
+              min={0}
+              max={100}
+              className="rounded-xl border border-[var(--line)] bg-white px-3 py-3"
+              value={form.minAcceptanceRate ?? ""}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  minAcceptanceRate: e.target.value ? Number(e.target.value) : undefined,
+                })
+              }
+            />
           </label>
           <label className="grid gap-1 text-sm font-semibold">
             Max acceptance rate %
