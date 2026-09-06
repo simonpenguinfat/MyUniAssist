@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 
 type BrandLogoProps = {
@@ -16,17 +15,17 @@ const sizeStyles = {
   sm: {
     wrap: "gap-2",
     mark: "h-11 w-auto",
-    text: "text-[1.25rem] leading-none",
+    text: "text-[1.3rem] leading-none",
   },
   md: {
     wrap: "gap-2.5",
     mark: "h-12 w-auto",
-    text: "text-[1.45rem] leading-none",
+    text: "text-[1.5rem] leading-none",
   },
   lg: {
     wrap: "gap-3.5",
-    mark: "h-[5.25rem] w-auto sm:h-[6.25rem]",
-    text: "text-[2.2rem] leading-none sm:text-[2.55rem]",
+    mark: "h-[5.5rem] w-auto sm:h-[6.75rem]",
+    text: "text-[2.35rem] leading-none sm:text-[2.75rem]",
   },
 } as const;
 
@@ -39,18 +38,18 @@ export function BrandLogo({
 }: BrandLogoProps) {
   const s = sizeStyles[size];
 
+  // SVG stays sharp at every size (screenshot PNG softens when scaled).
   const mark = (
-    <Image
-      src="/uniassist-mark.png"
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/uniassist-mark.svg"
       alt=""
-      width={724}
-      height={488}
-      priority={priority}
-      quality={100}
-      sizes={size === "lg" ? "120px" : "64px"}
+      width={200}
+      height={150}
       className={`${s.mark} shrink-0 object-contain`}
-      style={{ width: "auto" }}
       aria-hidden={variant === "full"}
+      decoding="async"
+      {...(priority ? { fetchPriority: "high" as const } : {})}
     />
   );
 
