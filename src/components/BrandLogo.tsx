@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 type BrandLogoProps = {
-  /** Full stacked logo (cap + wordmark) or cap mark only. */
+  /** Horizontal lockup (cap left + wordmark right) or cap mark only. */
   variant?: "full" | "mark";
   className?: string;
   priority?: boolean;
@@ -11,7 +11,7 @@ type BrandLogoProps = {
 };
 
 const sizes = {
-  full: { width: 541, height: 363, src: "/uniassist-logo.png" },
+  full: { width: 1198, height: 176, src: "/uniassist-logo.png" },
   mark: { width: 362, height: 244, src: "/uniassist-mark.png" },
 } as const;
 
@@ -29,11 +29,18 @@ export function BrandLogo({
       width={asset.width}
       height={asset.height}
       priority={priority}
-      className={className ?? (variant === "mark" ? "h-9 w-auto" : "h-11 w-auto")}
+      sizes="(max-width: 640px) 240px, 320px"
+      className={
+        className ??
+        (variant === "mark" ? "h-9 w-auto!" : "h-9 w-auto!")
+      }
+      style={{ width: "auto" }}
     />
   );
 
-  if (href == null) return image;
+  if (href == null) {
+    return <span className="inline-flex shrink-0 items-center">{image}</span>;
+  }
 
   return (
     <Link href={href} className="inline-flex shrink-0 items-center" aria-label="UniAssist home">

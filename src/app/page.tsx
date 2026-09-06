@@ -21,7 +21,7 @@ export default function HomePage() {
             variant="full"
             href={null}
             priority
-            className="h-[clamp(5.5rem,14vw,9rem)] w-auto"
+            className="h-16 w-auto max-w-[min(100%,20rem)] sm:h-20 sm:max-w-[24rem]"
           />
           <h1 className="font-serif mt-6 max-w-[16ch] text-[clamp(1.85rem,4vw,3.1rem)] font-semibold leading-[1.12] tracking-tight text-[var(--ink)]">
             Build a college list that actually fits you.
@@ -83,7 +83,7 @@ export default function HomePage() {
 
       <footer className="border-t border-black/5 px-5 py-10 text-sm text-[var(--ink)]/55">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <BrandLogo variant="full" className="h-12 w-auto" />
+          <BrandLogo variant="full" className="h-10 w-auto max-w-[14rem]" />
           <p>University application help for building smarter lists.</p>
         </div>
       </footer>

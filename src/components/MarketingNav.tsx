@@ -47,7 +47,7 @@ export function MarketingNav() {
   return (
     <header className="sticky top-0 z-40 border-b border-black/5 bg-white/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-        <BrandLogo variant="full" className="h-11 w-auto" priority />
+        <BrandLogo variant="full" className="h-9 w-auto max-w-[12rem]" priority />
 
         <nav className="relative flex items-center gap-6 text-sm font-semibold text-[var(--ink)]/80" ref={panelRef}>
           <button
