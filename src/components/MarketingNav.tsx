@@ -12,12 +12,6 @@ const tools = [
     icon: "cds",
   },
   {
-    href: "/tools/vr-tours",
-    title: "VR campus tours",
-    desc: "Open each university’s official virtual tour in one click.",
-    icon: "vr",
-  },
-  {
     href: "/tools/list-builder",
     title: "AI list builder",
     desc: "Build safeties, matches, and reaches from your academics and fit.",
@@ -66,7 +60,7 @@ export function MarketingNav() {
           </Link>
 
           {open && (
-            <div className="absolute left-1/2 top-[calc(100%+0.75rem)] w-[min(920px,92vw)] -translate-x-1/2 rounded-2xl border border-black/8 bg-white p-5 shadow-[0_24px_60px_rgba(11,31,40,0.14)] md:left-0 md:translate-x-0">
+            <div className="absolute left-1/2 top-[calc(100%+0.75rem)] w-[min(920px,92vw)] -translate-x-1/2 rounded-2xl border border-black/8 bg-white p-5 shadow-[0_24px_60px_rgba(11,31,40,0.14)] [...]">
               <div className="grid gap-2 md:grid-cols-[1.4fr_0.8fr]">
                 <div className="grid gap-1 sm:grid-cols-2">
                   {tools.map((t) => (
@@ -90,7 +84,7 @@ export function MarketingNav() {
                     Build a smarter college list
                   </p>
                   <p className="mt-2 text-sm text-[var(--ink)]/70">
-                    Create a free account to unlock CDS research, VR tours, and the list builder.
+                    Create a free account to unlock CDS research and the AI list builder.
                   </p>
                   <Link
                     href="/signup"
@@ -130,13 +124,6 @@ function toolIcon(kind: string) {
       <svg {...common}>
         <rect x="3" y="4" width="18" height="16" rx="2" />
         <path d="M3 10h18M9 4v16" />
-      </svg>
-    );
-  if (kind === "vr")
-    return (
-      <svg {...common}>
-        <circle cx="12" cy="12" r="9" />
-        <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
       </svg>
     );
   if (kind === "list")

@@ -30,7 +30,7 @@ export default async function DashboardPage() {
         Your personal workspace across {universities.length} campuses.
       </p>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-3">
+      <div className="mt-8 grid gap-4 md:grid-cols-2">
         <Link
           href="/tools/common-data-set"
           className="border-t border-[var(--ink)]/10 bg-white/70 pt-5 transition hover:border-[var(--teal)]"
@@ -43,21 +43,10 @@ export default async function DashboardPage() {
         </Link>
 
         <Link
-          href="/tools/vr-tours"
-          className="border-t border-[var(--ink)]/10 bg-white/70 pt-5 transition hover:border-[var(--teal)]"
-        >
-          <p className="text-xs font-bold tracking-[0.14em] text-[var(--teal)]">02</p>
-          <h2 className="font-display mt-2 text-xl font-bold text-[var(--ink)]">VR tours</h2>
-          <p className="mt-2 text-sm text-[var(--ink)]/70">
-            Jump into each university’s official virtual campus tour.
-          </p>
-        </Link>
-
-        <Link
           href="/tools/list-builder"
           className="rounded-lg bg-[var(--teal)] p-5 text-white transition hover:bg-[var(--teal-deep)]"
         >
-          <p className="text-xs font-bold tracking-[0.14em] text-[var(--citrus)]">03</p>
+          <p className="text-xs font-bold tracking-[0.14em] text-[var(--citrus)]">02</p>
           <h2 className="font-display mt-2 text-xl font-bold">AI list builder</h2>
           <p className="mt-2 text-sm text-white/75">
             Generate safeties, matches, and reaches from your profile.

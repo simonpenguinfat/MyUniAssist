@@ -22,7 +22,7 @@ const serif = Source_Serif_4({
 export const metadata: Metadata = {
   title: "UniAssist — University application help",
   description:
-    "Sign in for Common Data Set research, campus VR tours, and an AI-assisted college list builder.",
+    "Sign in for Common Data Set research and an AI-assisted college list builder.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

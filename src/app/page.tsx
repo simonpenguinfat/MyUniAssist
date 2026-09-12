@@ -13,7 +13,7 @@ export default function HomePage() {
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage:
-              "linear-gradient(105deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.88) 42%, rgba(255,255,255,0.35) 70%, rgba(6,47,56,0.25) 100%), url(https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=2000&q=80)",
+              "linear-gradient(105deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.88) 42%, rgba(255,255,255,0.35) 70%, rgba(6,47,56,0.25) 100%), url(https://images.unsplash.com/photo-1541339907[...]",
           }}
         />
         <div className="relative z-10 mx-auto flex min-h-[84vh] max-w-6xl flex-col justify-center px-5 py-20">
@@ -22,7 +22,7 @@ export default function HomePage() {
             Build a college list that actually fits you.
           </h1>
           <p className="mt-4 max-w-lg text-lg text-[var(--ink)]/70">
-            CDS research, campus VR tours, and an AI list builder — in one signed-in workspace.
+            CDS research and an AI list builder — in one signed-in workspace.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
@@ -43,7 +43,7 @@ export default function HomePage() {
         <h2 className="font-serif mt-2 max-w-xl text-3xl font-semibold tracking-tight md:text-4xl">
           What you get after you sign in
         </h2>
-        <div className="mt-10 grid gap-8 md:grid-cols-3">
+        <div className="mt-10 grid gap-8 md:grid-cols-2">
           {[
             [
               "01",
@@ -52,11 +52,6 @@ export default function HomePage() {
             ],
             [
               "02",
-              "VR campus tours",
-              "Tour campuses from one list — each link goes to the school’s official virtual visit.",
-            ],
-            [
-              "03",
               "AI list builder",
               "Turn grades, activities, personality, and location into safeties, matches, and reaches.",
             ],
