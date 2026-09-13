@@ -17,7 +17,8 @@ export function AuthPanel({ mode }: { mode: "signin" | "signup" }) {
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const configured = isSupabaseConfigured();
-async function onSubmit(e: FormEvent) {
+
+  async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
     setMessage(null);
@@ -131,7 +132,11 @@ async function onSubmit(e: FormEvent) {
             required
           />
         </label>
-        {error && <p className="text-sm text-red-700">{oauthError ? "Google sign-in failed. Try again or use email." : error}</p>}
+        {error && (
+          <p className="text-sm text-red-700">
+            {oauthError ? "Google sign-in failed. Try again or use email." : error}
+          </p>
+        )}
         {message && <p className="text-sm text-teal-800">{message}</p>}
         <button
           type="submit"
