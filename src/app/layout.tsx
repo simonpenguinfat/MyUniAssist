@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { Figtree, Source_Serif_4, Syne } from "next/font/google";
 import "./globals.css";
 
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
     "Sign in for Common Data Set research and an AI-assisted college list builder.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
