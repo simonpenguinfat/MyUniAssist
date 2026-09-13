@@ -26,6 +26,19 @@ const FACTOR_LABELS: [keyof CdsProfile["admissionFactors"], string][] = [
   ["level_of_applicant_interest", "Level of applicant interest"],
 ];
 
+const DIVERSITY_FIELDS: [keyof CdsProfile["diversity"], string, number?][] = [
+  ["denominator", "Population denominator"],
+  ["aianPct", "AIAN", 3],
+  ["asianPct", "Asian", 3],
+  ["blackPct", "Black", 3],
+  ["hispanicPct", "Hispanic", 3],
+  ["nhpiPct", "NHPI", 3],
+  ["whitePct", "White", 3],
+  ["twoOrMorePct", "Two or more", 3],
+  ["unknownPct", "Unknown", 3],
+  ["nonresidentPct", "Nonresident", 3],
+];
+
 function formatUsd(value: number | null) {
   if (value == null) return "Not reported";
   return `$${value.toLocaleString("en-US")}`;
@@ -44,13 +57,13 @@ function formatScore(value: number | null) {
 function formatGpaDistribution(profile: CdsProfile) {
   const d = profile.gpa.distribution;
   return [
-    formatPct(d.gte3_75Pct),
-    formatPct(d.gte3_5Pct),
-    formatPct(d.gte3_25Pct),
-    formatPct(d.gte3_0Pct),
-    formatPct(d.gte2_5Pct),
-    formatPct(d.gte2_0Pct),
-    formatPct(d.lt2_0Pct),
+    formatPct(d.range3_75PlusPct),
+    formatPct(d.range3_5To3_74Pct),
+    formatPct(d.range3_25To3_49Pct),
+    formatPct(d.range3_0To3_24Pct),
+    formatPct(d.range2_5To2_99Pct),
+    formatPct(d.range2_0To2_49Pct),
+    formatPct(d.rangeUnder2_0Pct),
   ].join(" / ");
 }
 
@@ -205,16 +218,14 @@ export default async function CommonDataSetPage({
                       <section>
                         <h3 className="font-semibold">Campus diversity</h3>
                         <ul className="mt-1 space-y-1 text-xs text-[var(--ink)]/80">
-                          <li>Population denominator: {formatScore(u.diversity.denominator)}</li>
-                          <li>AIAN: {formatPct(u.diversity.aianPct, 3)}</li>
-                          <li>Asian: {formatPct(u.diversity.asianPct, 3)}</li>
-                          <li>Black: {formatPct(u.diversity.blackPct, 3)}</li>
-                          <li>Hispanic: {formatPct(u.diversity.hispanicPct, 3)}</li>
-                          <li>NHPI: {formatPct(u.diversity.nhpiPct, 3)}</li>
-                          <li>White: {formatPct(u.diversity.whitePct, 3)}</li>
-                          <li>Two or more: {formatPct(u.diversity.twoOrMorePct, 3)}</li>
-                          <li>Unknown: {formatPct(u.diversity.unknownPct, 3)}</li>
-                          <li>Nonresident: {formatPct(u.diversity.nonresidentPct, 3)}</li>
+                          {DIVERSITY_FIELDS.map(([key, label, decimals]) => (
+                            <li key={key}>
+                              {label}:{" "}
+                              {key === "denominator"
+                                ? formatScore(u.diversity[key])
+                                : formatPct(u.diversity[key], decimals ?? 1)}
+                            </li>
+                          ))}
                         </ul>
                       </section>
                     </div>
@@ -233,7 +244,8 @@ export default async function CommonDataSetPage({
                     </section>
                     <section className="mt-3 text-xs text-[var(--ink)]/75">
                       <p>
-                        GPA distribution ≥3.75 / ≥3.50 / ≥3.25 / ≥3.00 / ≥2.50 / ≥2.00 / &lt;2.00:
+                        GPA distribution 3.75+ / 3.50-3.74 / 3.25-3.49 / 3.00-3.24 / 2.50-2.99 /
+                        2.00-2.49 / &lt;2.00:
                         {" "}
                         {formatGpaDistribution(u)}
                       </p>

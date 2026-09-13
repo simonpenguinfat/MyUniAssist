@@ -38,13 +38,13 @@ export type CdsProfile = {
   gpa: {
     average: number | null;
     distribution: {
-      gte3_75Pct: number | null;
-      gte3_5Pct: number | null;
-      gte3_25Pct: number | null;
-      gte3_0Pct: number | null;
-      gte2_5Pct: number | null;
-      gte2_0Pct: number | null;
-      lt2_0Pct: number | null;
+      range3_75PlusPct: number | null;
+      range3_5To3_74Pct: number | null;
+      range3_25To3_49Pct: number | null;
+      range3_0To3_24Pct: number | null;
+      range2_5To2_99Pct: number | null;
+      range2_0To2_49Pct: number | null;
+      rangeUnder2_0Pct: number | null;
     };
   };
   costs: {
@@ -355,13 +355,13 @@ function buildStub(name: string): CdsProfile {
     gpa: {
       average: null,
       distribution: {
-        gte3_75Pct: null,
-        gte3_5Pct: null,
-        gte3_25Pct: null,
-        gte3_0Pct: null,
-        gte2_5Pct: null,
-        gte2_0Pct: null,
-        lt2_0Pct: null,
+        range3_75PlusPct: null,
+        range3_5To3_74Pct: null,
+        range3_25To3_49Pct: null,
+        range3_0To3_24Pct: null,
+        range2_5To2_99Pct: null,
+        range2_0To2_49Pct: null,
+        rangeUnder2_0Pct: null,
       },
     },
     costs: {
@@ -396,14 +396,15 @@ function buildStub(name: string): CdsProfile {
 }
 
 function buildProfilesFromCsv(): CdsProfile[] {
-  const csvPath = path.join(process.cwd(), "data", "CDS_109_Universities_Consolidated_Statistics.csv");
-  const raw = readFileSync(csvPath, "utf8");
-  const rows = parseCsv(raw);
-  if (rows.length === 0 || rows[0].length === 0) return [];
-  const headers = rows[0];
-  const idx = Object.fromEntries(headers.map((header, index) => [header, index]));
-  const rankColumn = headers.find((header) => /^US_NEWS_.*_RANK$/.test(header));
-  const profiles: CdsProfile[] = [];
+  try {
+    const csvPath = path.join(process.cwd(), "data", "CDS_109_Universities_Consolidated_Statistics.csv");
+    const raw = readFileSync(csvPath, "utf8");
+    const rows = parseCsv(raw);
+    if (rows.length === 0 || rows[0].length === 0) return [];
+    const headers = rows[0];
+    const idx = Object.fromEntries(headers.map((header, index) => [header, index]));
+    const rankColumn = headers.find((header) => /^US_NEWS_.*_RANK$/.test(header));
+    const profiles: CdsProfile[] = [];
 
   for (const row of rows.slice(1)) {
     const name = row[idx.UNIVERSITY]?.trim();
@@ -462,13 +463,13 @@ function buildProfilesFromCsv(): CdsProfile[] {
       gpa: {
         average: parseNumber(row[idx.AVERAGE_HIGH_SCHOOL_GPA]),
         distribution: {
-          gte3_75Pct: numberFromColumns(row, idx, ["GPA_DIST_3_75_UP_PCT"]),
-          gte3_5Pct: numberFromColumns(row, idx, ["GPA_DIST_3_5_TO_3_74_PCT"]),
-          gte3_25Pct: numberFromColumns(row, idx, ["GPA_DIST_3_25_TO_3_49_PCT"]),
-          gte3_0Pct: numberFromColumns(row, idx, ["GPA_DIST_3_0_TO_3_24_PCT"]),
-          gte2_5Pct: numberFromColumns(row, idx, ["GPA_DIST_2_5_TO_2_99_PCT"]),
-          gte2_0Pct: numberFromColumns(row, idx, ["GPA_DIST_2_0_TO_2_49_PCT"]),
-          lt2_0Pct: numberFromColumns(row, idx, ["GPA_DIST_LT_2_0_PCT"]),
+          range3_75PlusPct: numberFromColumns(row, idx, ["GPA_DIST_3_75_UP_PCT"]),
+          range3_5To3_74Pct: numberFromColumns(row, idx, ["GPA_DIST_3_5_TO_3_74_PCT"]),
+          range3_25To3_49Pct: numberFromColumns(row, idx, ["GPA_DIST_3_25_TO_3_49_PCT"]),
+          range3_0To3_24Pct: numberFromColumns(row, idx, ["GPA_DIST_3_0_TO_3_24_PCT"]),
+          range2_5To2_99Pct: numberFromColumns(row, idx, ["GPA_DIST_2_5_TO_2_99_PCT"]),
+          range2_0To2_49Pct: numberFromColumns(row, idx, ["GPA_DIST_2_0_TO_2_49_PCT"]),
+          rangeUnder2_0Pct: numberFromColumns(row, idx, ["GPA_DIST_LT_2_0_PCT"]),
         },
       },
       costs: {
@@ -502,23 +503,26 @@ function buildProfilesFromCsv(): CdsProfile[] {
     });
   }
 
-  const profileById = new Set(profiles.map((profile) => profile.id));
-  for (const name of MISSING_URL_STUB_SCHOOLS) {
-    const id = slugify(name);
-    if (!profileById.has(id)) {
-      profiles.push(buildStub(name));
-      profileById.add(id);
+    const profileById = new Set(profiles.map((profile) => profile.id));
+    for (const name of MISSING_URL_STUB_SCHOOLS) {
+      const id = slugify(name);
+      if (!profileById.has(id)) {
+        profiles.push(buildStub(name));
+        profileById.add(id);
+      }
     }
+
+    profiles.sort((left, right) => {
+      const leftRank = left.usNewsRank ?? 99999;
+      const rightRank = right.usNewsRank ?? 99999;
+      if (leftRank !== rightRank) return leftRank - rightRank;
+      return left.name.localeCompare(right.name);
+    });
+
+    return profiles;
+  } catch {
+    return [];
   }
-
-  profiles.sort((left, right) => {
-    const leftRank = left.usNewsRank ?? 99999;
-    const rightRank = right.usNewsRank ?? 99999;
-    if (leftRank !== rightRank) return leftRank - rightRank;
-    return left.name.localeCompare(right.name);
-  });
-
-  return profiles;
 }
 
 const CDS_PROFILES = buildProfilesFromCsv();
