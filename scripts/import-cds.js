@@ -1,5 +1,5 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "node:fs";
+import path from "node:path";
 
 const csvPath = [
   path.join(__dirname, "../data/CDS_109_Universities_Consolidated_Statistics.csv"),

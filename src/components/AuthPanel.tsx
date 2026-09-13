@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
@@ -8,6 +8,7 @@ import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 export function AuthPanel({ mode }: { mode: "signin" | "signup" }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const oauthError = searchParams.get("error") === "oauth";
   const nextPath = safeNext(searchParams.get("next"));
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -16,14 +17,7 @@ export function AuthPanel({ mode }: { mode: "signin" | "signup" }) {
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const configured = isSupabaseConfigured();
-
-  useEffect(() => {
-    if (searchParams.get("error") === "oauth") {
-      setError("Google sign-in failed. Try again or use email.");
-    }
-  }, [searchParams]);
-
-  async function onSubmit(e: FormEvent) {
+async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
     setMessage(null);
@@ -137,7 +131,7 @@ export function AuthPanel({ mode }: { mode: "signin" | "signup" }) {
             required
           />
         </label>
-        {error && <p className="text-sm text-red-700">{error}</p>}
+        {error && <p className="text-sm text-red-700">{oauthError ? "Google sign-in failed. Try again or use email." : error}</p>}
         {message && <p className="text-sm text-teal-800">{message}</p>}
         <button
           type="submit"
