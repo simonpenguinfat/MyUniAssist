@@ -190,7 +190,14 @@ export default async function CommonDataSetPage({
                           <li>Books & supplies: {formatUsd(u.costs.booksAndSuppliesUsd)}</li>
                           <li>Transportation: {formatUsd(u.costs.transportationUsd)}</li>
                           <li>Other expenses: {formatUsd(u.costs.otherExpensesUsd)}</li>
-                          <li>Total COA: {formatUsd(u.costs.coaTotalSingleUsd)}</li>
+                          <li>
+                            Total COA:{" "}
+                            {formatUsd(
+                              u.costs.coaTotalSingleUsd ??
+                                u.costs.coaTotalOutOfStateUsd ??
+                                u.costs.coaTotalInStateUsd
+                            )}
+                          </li>
                           <li>% need met: {formatPct(u.costs.needMetPct)}</li>
                           <li>Average aid package: {formatUsd(u.costs.averageAidPackageUsd)}</li>
                         </ul>
