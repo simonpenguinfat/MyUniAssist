@@ -1,5 +1,3 @@
-import { Fragment } from "react";
-
 import {
   admissionFactorLabel,
   getCommonDataSetProfiles,
@@ -91,7 +89,7 @@ export default async function CommonDataSetPage({
       </form>
 
       <div className="mt-6 overflow-x-auto rounded-xl border border-[var(--line)] bg-white">
-        <table className="w-full min-w-[880px] text-left text-sm">
+        <table className="w-full min-w-[1080px] text-left text-sm">
           <thead className="bg-[var(--fog)] text-xs uppercase tracking-wide text-[var(--ink)]/55">
             <tr>
               <th className="px-4 py-3">Rank</th>
@@ -103,12 +101,12 @@ export default async function CommonDataSetPage({
               <th className="px-4 py-3">ACT mid</th>
               <th className="px-4 py-3">Tuition</th>
               <th className="px-4 py-3">CDS</th>
+              <th className="px-4 py-3">Details</th>
             </tr>
           </thead>
           <tbody>
             {universities.map((u) => (
-              <Fragment key={u.id}>
-              <tr className="border-t border-[var(--line)]">
+              <tr key={u.id} className="border-t border-[var(--line)] align-top">
                 <td className="px-4 py-3 text-[var(--ink)]/55">
                   {u.usNewsRank != null ? `#${u.usNewsRank}` : "—"}
                 </td>
@@ -143,9 +141,7 @@ export default async function CommonDataSetPage({
                     <span className="text-[var(--ink)]/60">Not reported</span>
                   )}
                 </td>
-              </tr>
-              <tr className="border-t border-[var(--line)] bg-[var(--fog)]/40">
-                <td className="px-4 py-3 text-xs text-[var(--ink)]/80" colSpan={9}>
+                <td className="px-4 py-3 text-xs text-[var(--ink)]/80">
                   <details>
                     <summary className="cursor-pointer font-semibold text-[var(--ink)]">
                       Detailed CDS fields
@@ -244,7 +240,6 @@ export default async function CommonDataSetPage({
                   </details>
                 </td>
               </tr>
-              </Fragment>
             ))}
           </tbody>
         </table>

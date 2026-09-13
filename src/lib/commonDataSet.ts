@@ -385,6 +385,7 @@ function buildProfilesFromCsv(): CdsProfile[] {
   const rows = parseCsv(raw);
   const headers = rows[0];
   const idx = Object.fromEntries(headers.map((header, index) => [header, index]));
+  const rankColumn = headers.find((header) => /^US_NEWS_.*_RANK$/.test(header));
   const profiles: CdsProfile[] = [];
 
   for (const row of rows.slice(1)) {
@@ -402,7 +403,7 @@ function buildProfilesFromCsv(): CdsProfile[] {
       city: meta?.city ?? "Not reported",
       state: meta?.state ?? "Not reported",
       region: meta?.region ?? "Not reported",
-      usNewsRank: parseNumber(row[idx.US_NEWS_2026_RANK]) ?? meta?.usNewsRank ?? null,
+      usNewsRank: (rankColumn ? parseNumber(row[idx[rankColumn]]) : null) ?? meta?.usNewsRank ?? null,
       websiteUrl: meta?.websiteUrl ?? "",
       cdsSourceUrl:
         row[idx.PRIMARY_ADMISSIONS_SOURCE_URL] && row[idx.PRIMARY_ADMISSIONS_SOURCE_URL] !== "NA"
