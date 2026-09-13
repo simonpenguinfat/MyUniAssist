@@ -43,6 +43,19 @@ function formatScore(value: number | null) {
   return String(value);
 }
 
+function formatGpaDistribution(profile: CdsProfile) {
+  const d = profile.gpa.distribution;
+  return [
+    formatPct(d.gte3_75Pct),
+    formatPct(d.gte3_5Pct),
+    formatPct(d.gte3_25Pct),
+    formatPct(d.gte3_0Pct),
+    formatPct(d.gte2_5Pct),
+    formatPct(d.gte2_0Pct),
+    formatPct(d.lt2_0Pct),
+  ].join(" / ");
+}
+
 export default async function CommonDataSetPage({
   searchParams,
 }: {
@@ -218,7 +231,8 @@ export default async function CommonDataSetPage({
                     <section className="mt-3 text-xs text-[var(--ink)]/75">
                       <p>
                         GPA distribution ≥3.75 / ≥3.50 / ≥3.25 / ≥3.00 / ≥2.50 / ≥2.00 / &lt;2.00:
-                        {" Not reported / Not reported / Not reported / Not reported / Not reported / Not reported / Not reported"}
+                        {" "}
+                        {formatGpaDistribution(u)}
                       </p>
                       {u.searchHint ? <p className="mt-1">Search hint: {u.searchHint}</p> : null}
                       {u.flaggedValues.length > 0 ? (

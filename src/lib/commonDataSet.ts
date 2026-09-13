@@ -402,7 +402,7 @@ function buildProfilesFromCsv(): CdsProfile[] {
       city: meta?.city ?? "Not reported",
       state: meta?.state ?? "Not reported",
       region: meta?.region ?? "Not reported",
-      usNewsRank: parseNumber(row[idx.US_NEWS_2026_RANK]),
+      usNewsRank: parseNumber(row[idx.US_NEWS_2026_RANK]) ?? meta?.usNewsRank ?? null,
       websiteUrl: meta?.websiteUrl ?? "",
       cdsSourceUrl:
         row[idx.PRIMARY_ADMISSIONS_SOURCE_URL] && row[idx.PRIMARY_ADMISSIONS_SOURCE_URL] !== "NA"
