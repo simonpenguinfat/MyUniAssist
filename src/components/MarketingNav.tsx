@@ -12,12 +12,6 @@ const tools = [
     icon: "cds",
   },
   {
-    href: "/tools/vr-tours",
-    title: "VR campus tours",
-    desc: "Open each university’s official virtual tour in one click.",
-    icon: "vr",
-  },
-  {
     href: "/tools/list-builder",
     title: "AI list builder",
     desc: "Build safeties, matches, and reaches from your academics and fit.",
@@ -90,7 +84,7 @@ export function MarketingNav() {
                     Build a smarter college list
                   </p>
                   <p className="mt-2 text-sm text-[var(--ink)]/70">
-                    Create a free account to unlock CDS research, VR tours, and the list builder.
+                    Create a free account to unlock CDS research and the list builder.
                   </p>
                   <Link
                     href="/signup"
@@ -130,13 +124,6 @@ function toolIcon(kind: string) {
       <svg {...common}>
         <rect x="3" y="4" width="18" height="16" rx="2" />
         <path d="M3 10h18M9 4v16" />
-      </svg>
-    );
-  if (kind === "vr")
-    return (
-      <svg {...common}>
-        <circle cx="12" cy="12" r="9" />
-        <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
       </svg>
     );
   if (kind === "list")

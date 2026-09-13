@@ -10,7 +10,7 @@ export default function AboutPage() {
         </h1>
         <p className="mt-4 text-lg text-[var(--ink)]/80">
           UniAssist helps students move from scattered spreadsheets to a signed-in workspace:
-          Common Data Set research, VR tours, and a fit-based application list builder.
+          Common Data Set research and a fit-based application list builder.
         </p>
         <p className="mt-4 text-[var(--ink)]/80">
           The matching engine weighs GPA, SAT/ACT, extracurricular themes, personality fit,

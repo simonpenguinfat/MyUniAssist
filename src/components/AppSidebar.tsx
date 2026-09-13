@@ -11,7 +11,6 @@ const primary = [
 
 const tools = [
   { href: "/tools/common-data-set", label: "Common Data Set", icon: IconTable },
-  { href: "/tools/vr-tours", label: "VR Tours", icon: IconGlobe },
   { href: "/tools/list-builder", label: "AI List Builder", icon: IconSpark },
 ];
 
@@ -119,15 +118,6 @@ function IconTable() {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
       <rect x="3" y="4" width="18" height="16" rx="2" />
       <path d="M3 10h18M9 4v16" />
-    </svg>
-  );
-}
-
-function IconGlobe() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
     </svg>
   );
 }
