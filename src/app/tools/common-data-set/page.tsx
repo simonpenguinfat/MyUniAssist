@@ -144,7 +144,7 @@ export default async function CommonDataSetPage({
                 <td className="px-4 py-3 text-xs text-[var(--ink)]/80">
                   <details>
                     <summary className="cursor-pointer font-semibold text-[var(--ink)]">
-                      Detailed CDS fields for {u.name}
+                      View details <span className="sr-only">for {u.name}</span>
                     </summary>
                     <div className="mt-3 grid gap-4 md:grid-cols-2">
                       <section>

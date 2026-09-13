@@ -306,7 +306,7 @@ function parseNumber(value: string | undefined) {
   if (!normalized) return null;
   const upper = normalized.toUpperCase();
   if (upper === "NA" || upper === "NOT_REPORTED" || upper === "NULL") return null;
-  const n = Number(normalized.replace(/,/g, ""));
+  const n = Number(normalized.replace(/,/g, "").replace(/%$/, ""));
   return Number.isFinite(n) ? n : null;
 }
 
@@ -399,6 +399,7 @@ function buildProfilesFromCsv(): CdsProfile[] {
   const csvPath = path.join(process.cwd(), "data", "CDS_109_Universities_Consolidated_Statistics.csv");
   const raw = readFileSync(csvPath, "utf8");
   const rows = parseCsv(raw);
+  if (rows.length === 0 || rows[0].length === 0) return [];
   const headers = rows[0];
   const idx = Object.fromEntries(headers.map((header, index) => [header, index]));
   const rankColumn = headers.find((header) => /^US_NEWS_.*_RANK$/.test(header));
