@@ -302,9 +302,25 @@ function parseCsv(text: string) {
 
 function parseNumber(value: string | undefined) {
   if (!value) return null;
-  if (value === "NA" || value === "NOT_REPORTED" || value === "NULL") return null;
-  const n = Number(value.replace(/,/g, ""));
+  const normalized = value.trim();
+  if (!normalized) return null;
+  const upper = normalized.toUpperCase();
+  if (upper === "NA" || upper === "NOT_REPORTED" || upper === "NULL") return null;
+  const n = Number(normalized.replace(/,/g, ""));
   return Number.isFinite(n) ? n : null;
+}
+
+function numberFromColumns(
+  row: string[],
+  idx: Record<string, number>,
+  candidates: string[]
+) {
+  for (const candidate of candidates) {
+    const columnIndex = idx[candidate];
+    if (columnIndex == null) continue;
+    return parseNumber(row[columnIndex]);
+  }
+  return null;
 }
 
 function buildStub(name: string): CdsProfile {
@@ -418,13 +434,13 @@ function buildProfilesFromCsv(): CdsProfile[] {
       sourceTxtFile: row[idx.SOURCE_TXT_FILE] && row[idx.SOURCE_TXT_FILE] !== "NA" ? row[idx.SOURCE_TXT_FILE] : null,
       searchHint: null,
       admissions: {
-        applicantsTotal: null,
-        admittedTotal: null,
-        enrolledTotal: null,
+        applicantsTotal: numberFromColumns(row, idx, ["APPLICANTS_TOTAL", "APPLICANTS"]),
+        admittedTotal: numberFromColumns(row, idx, ["ADMITTED_TOTAL", "ADMITTED"]),
+        enrolledTotal: numberFromColumns(row, idx, ["ENROLLED_TOTAL", "ENROLLED"]),
         acceptanceRatePct: parseNumber(row[idx.ACCEPTANCE_RATE_PERCENT]),
-        waitlistOffered: null,
-        waitlistAdmitted: null,
-        yieldRatePct: null,
+        waitlistOffered: numberFromColumns(row, idx, ["WAITLIST_OFFERED"]),
+        waitlistAdmitted: numberFromColumns(row, idx, ["WAITLIST_ADMITTED"]),
+        yieldRatePct: numberFromColumns(row, idx, ["YIELD_RATE_PERCENT", "YIELD_RATE_PCT"]),
       },
       admissionFactors: factors,
       tests: {
@@ -439,26 +455,26 @@ function buildProfilesFromCsv(): CdsProfile[] {
           p50: parseNumber(row[idx.ACT_MEDIAN_REPORTED]),
           p75: parseNumber(row[idx.ACT_75TH]),
         },
-        submittingSatPct: null,
-        submittingActPct: null,
+        submittingSatPct: numberFromColumns(row, idx, ["PERCENT_SUBMITTING_SAT", "SUBMITTING_SAT_PERCENT"]),
+        submittingActPct: numberFromColumns(row, idx, ["PERCENT_SUBMITTING_ACT", "SUBMITTING_ACT_PERCENT"]),
       },
       gpa: {
         average: parseNumber(row[idx.AVERAGE_HIGH_SCHOOL_GPA]),
         distribution: {
-          gte3_75Pct: null,
-          gte3_5Pct: null,
-          gte3_25Pct: null,
-          gte3_0Pct: null,
-          gte2_5Pct: null,
-          gte2_0Pct: null,
-          lt2_0Pct: null,
+          gte3_75Pct: numberFromColumns(row, idx, ["GPA_DIST_3_75_UP_PCT"]),
+          gte3_5Pct: numberFromColumns(row, idx, ["GPA_DIST_3_5_TO_3_74_PCT"]),
+          gte3_25Pct: numberFromColumns(row, idx, ["GPA_DIST_3_25_TO_3_49_PCT"]),
+          gte3_0Pct: numberFromColumns(row, idx, ["GPA_DIST_3_0_TO_3_24_PCT"]),
+          gte2_5Pct: numberFromColumns(row, idx, ["GPA_DIST_2_5_TO_2_99_PCT"]),
+          gte2_0Pct: numberFromColumns(row, idx, ["GPA_DIST_2_0_TO_2_49_PCT"]),
+          lt2_0Pct: numberFromColumns(row, idx, ["GPA_DIST_LT_2_0_PCT"]),
         },
       },
       costs: {
         tuitionSingleUsd: parseNumber(row[idx.TUITION_SINGLE_RATE_USD]),
         tuitionInStateUsd: parseNumber(row[idx.TUITION_IN_STATE_USD]),
         tuitionOutOfStateUsd: parseNumber(row[idx.TUITION_OUT_OF_STATE_USD]),
-        requiredFeesUsd: null,
+        requiredFeesUsd: numberFromColumns(row, idx, ["REQUIRED_FEES_USD"]),
         housingAndFoodUsd: parseNumber(row[idx.HOUSING_AND_FOOD_USD]),
         booksAndSuppliesUsd: parseNumber(row[idx.BOOKS_AND_SUPPLIES_USD]),
         transportationUsd: parseNumber(row[idx.TRANSPORTATION_USD]),
@@ -466,8 +482,8 @@ function buildProfilesFromCsv(): CdsProfile[] {
         coaTotalSingleUsd: parseNumber(row[idx.TOTAL_COST_SINGLE_RATE_USD]),
         coaTotalInStateUsd: parseNumber(row[idx.TOTAL_COST_IN_STATE_USD]),
         coaTotalOutOfStateUsd: parseNumber(row[idx.TOTAL_COST_OUT_OF_STATE_USD]),
-        needMetPct: null,
-        averageAidPackageUsd: null,
+        needMetPct: numberFromColumns(row, idx, ["PERCENT_NEED_MET", "NEED_MET_PERCENT"]),
+        averageAidPackageUsd: numberFromColumns(row, idx, ["AVERAGE_AID_PACKAGE_USD"]),
       },
       diversity: {
         denominator: parseNumber(row[idx.DIVERSITY_DENOMINATOR]),
