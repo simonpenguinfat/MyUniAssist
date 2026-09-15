@@ -1,176 +1,297 @@
+import {
+  estimateAdmission,
+  fitBreakdown,
+  annualCost,
+  type AdmissionEstimate,
+  type FitBreakdown,
+  type StudentProfile,
+} from "@/lib/admissions";
 import { UNIVERSITIES, type University } from "@/lib/universities";
-
-export type ListBuilderInput = {
-  extracurriculars: string;
-  gpa: number;
-  sat?: number;
-  act?: number;
-  personality: string;
-  locationInterest: string;
-  universityInterests: string;
-  minAcceptanceRate?: number;
-  maxAcceptanceRate?: number;
-  includeSafeties: boolean;
-  includeMatches: boolean;
-  includeReaches: boolean;
-};
 
 export type RankedUniversity = {
   university: University;
-  category: "Safety" | "Match" | "Reach";
+  category: AdmissionEstimate["category"];
+  farReach: boolean;
+  /** Estimated chance of admission for this student, 0–1. */
+  probability: number;
+  /** How well the school matches what the student wants, 0–100. */
   fitScore: number;
-  rationale: string;
+  /** Ranking key: fit weighted by how realistic the school is. */
+  overallScore: number;
+  admission: AdmissionEstimate;
+  fit: FitBreakdown;
+  /** Cost the student would actually face, in-state rate where applicable. */
+  estimatedAnnualCostUsd: number | null;
+  reasons: string[];
+  /** Filled in by the AI layer when an API key is configured. */
+  advisorNote?: string;
 };
 
-function tokenize(raw: string) {
-  return new Set(
-    raw
-      .toLowerCase()
-      .split(/[,/;|]+|\s+/)
-      .map((t) => t.trim().replace(/[^a-z0-9+#-]/g, ""))
-      .filter((t) => t.length >= 3)
-  );
-}
+export type ListShape = {
+  safeties: number;
+  matches: number;
+  reaches: number;
+};
 
-function clamp(v: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, v));
-}
+export const DEFAULT_LIST_SHAPE: ListShape = { safeties: 4, matches: 6, reaches: 5 };
 
-function overlapScore(a: Set<string>, b: Set<string>, maxPts: number) {
-  if (a.size === 0 || b.size === 0) return Math.floor(maxPts / 3);
-  let hits = 0;
-  a.forEach((t) => {
-    if (b.has(t)) hits += 1;
-  });
-  if (hits === 0) return 2;
-  return Math.min(maxPts, 4 + hits * 5);
-}
+export type BuildOptions = {
+  shape?: ListShape;
+  /** Hard filters applied before scoring. */
+  regions?: string[];
+  maxAnnualCostUsd?: number;
+  excludeIds?: string[];
+};
 
-/** Use CDS values when present; otherwise neutral midpoints for scoring only. */
-function stats(u: University) {
-  return {
-    avgGpa: u.avgGpa ?? 3.7,
-    satMid: u.satMid ?? 1300,
-    actMid: u.actMid ?? 28,
-    acceptanceRate: u.acceptanceRate ?? 0.35,
-  };
-}
-
-function academicFit(input: ListBuilderInput, u: University) {
-  const s = stats(u);
-  const gpaDelta = input.gpa - s.avgGpa;
-  const gpaPts = Math.round(clamp(18 + gpaDelta * 28, 0, 30));
-  let testPts = 12;
-  if (input.sat != null) {
-    testPts = Math.round(clamp(14 + ((input.sat - s.satMid) / 80) * 10, 0, 22));
-  } else if (input.act != null) {
-    testPts = Math.round(clamp(14 + ((input.act - s.actMid) / 2) * 10, 0, 22));
-  }
-  return gpaPts + testPts;
-}
-
-function categorize(
-  input: ListBuilderInput,
+function reasonsFor(
   u: University,
-  academicScore: number
-): RankedUniversity["category"] {
-  const s = stats(u);
-  const gpaEdge = input.gpa - s.avgGpa;
-  let testEdge = 0;
-  if (input.sat != null) testEdge = input.sat - s.satMid;
-  else if (input.act != null) testEdge = (input.act - s.actMid) * 40;
+  admission: AdmissionEstimate,
+  fit: FitBreakdown,
+  cost: number | null
+): string[] {
+  const reasons: string[] = [];
+  reasons.push(...fit.notes.slice(0, 3));
+  reasons.push(...admission.drivers.slice(0, 3));
 
-  if (s.acceptanceRate <= 0.12 || academicScore < 28 || (gpaEdge < -0.15 && testEdge < -40)) {
-    return "Reach";
+  if (u.acceptanceRate != null) {
+    reasons.push(
+      `Admits ${(u.acceptanceRate * 100).toFixed(1)}% of applicants${
+        u.acceptanceRateYear ? ` (CDS ${u.acceptanceRateYear})` : ""
+      }`
+    );
   }
-  if (s.acceptanceRate >= 0.45 && academicScore >= 38 && gpaEdge >= 0.05) return "Safety";
-  if (academicScore >= 42 && (gpaEdge >= 0.12 || testEdge >= 60)) return "Safety";
-  if (academicScore <= 32 || gpaEdge < -0.05) return "Reach";
-  return "Match";
+  if (cost != null) {
+    reasons.push(`About $${cost.toLocaleString()} per year before aid`);
+  }
+
+  // De-duplicate while preserving order.
+  return [...new Set(reasons)].slice(0, 6);
 }
 
-function locationFit(location: string, u: University) {
-  const loc = location.trim().toLowerCase();
-  if (!loc || loc === "any" || loc === "no preference") return 12;
-  const region = u.region.toLowerCase();
-  const state = u.state.toLowerCase();
-  const setting = u.setting.toLowerCase();
-  if (loc.includes(region) || region.includes(loc) || loc.includes(state)) return 20;
-  if (loc.includes("urban") && setting.includes("urban")) return 16;
-  if (loc.includes("suburban") && setting.includes("suburban")) return 16;
-  if (loc.includes("college town") && setting.includes("college town")) return 16;
-  if (loc.includes("rural") && setting.includes("rural")) return 16;
-  return 5;
+/**
+ * Ranking blends fit with realism. A perfect-fit school the student cannot get
+ * into is not a useful list entry, and neither is a guaranteed admit they would
+ * hate, so each category gets its own realism curve.
+ */
+function overallScore(fit: number, probability: number, category: string) {
+  const realism =
+    category === "Reach"
+      ? 0.55 + probability * 1.6
+      : category === "Match"
+        ? 0.85 + probability * 0.3
+        : 0.8 + (1 - probability) * 0.25;
+  return Math.round(fit * Math.min(realism, 1.15) * 10) / 10;
 }
 
-function formatAccept(rate: number | null) {
-  if (rate == null) return "—";
-  return `${(rate * 100).toFixed(1)}%`;
+export type BuiltList = {
+  schools: RankedUniversity[];
+  counts: { safeties: number; matches: number; reaches: number };
+  /** Honest notes about what the list could not deliver. */
+  warnings: string[];
+  /** How much of the list rests on reported vs modelled CDS data. */
+  dataNote: string;
+};
+
+/**
+ * The catalog is 109 selective national universities. For some profiles it
+ * genuinely contains no safety, and saying so is far more useful than
+ * relabelling a match — an unbalanced list is the single most common and most
+ * costly mistake in a student-built college list.
+ */
+function warningsFor(
+  picked: RankedUniversity[],
+  shape: ListShape,
+  catalogSize: number,
+  budgetRequested: boolean
+): string[] {
+  const warnings: string[] = [];
+  const counts = summarize(picked);
+
+  if (counts.safeties === 0) {
+    warnings.push(
+      "No school in this dataset is a safety for this profile. The catalog covers 109 selective national universities, so add two or three local or regional public universities — a list without a true safety is not a finished list."
+    );
+  } else if (counts.safeties < Math.min(2, shape.safeties)) {
+    warnings.push(
+      "Only one safety was found. Aim for at least two schools you would be genuinely happy to attend and are confident of admission to."
+    );
+  }
+
+  if (counts.matches === 0) {
+    warnings.push(
+      "No matches were found, which usually means the filters are too narrow. Widening the region or budget will surface schools in the 30–70% range."
+    );
+  }
+
+  if (picked.length < shape.safeties + shape.matches + shape.reaches) {
+    warnings.push(
+      `Only ${picked.length} of the requested ${
+        shape.safeties + shape.matches + shape.reaches
+      } schools matched the filters, out of ${catalogSize} in the catalog.`
+    );
+  }
+
+  if (budgetRequested && picked.length > 0) {
+    const noCost = picked.filter((r) => r.estimatedAnnualCostUsd == null).length;
+    if (noCost >= Math.ceil(picked.length / 2)) {
+      warnings.push(
+        `The Common Data Set workbook reports no cost figures for ${noCost} of these ${picked.length} schools, so the budget could not be applied to them. Check each school's net price calculator directly.`
+      );
+    }
+  }
+
+  const overBudget = picked.filter((r) =>
+    r.reasons.some((x) => x.includes("above the stated budget"))
+  );
+  if (overBudget.length >= Math.ceil(picked.length / 2) && picked.length > 0) {
+    warnings.push(
+      "Most of this list sits above the stated budget at sticker price. Run each school's net price calculator before committing to it."
+    );
+  }
+
+  return warnings;
 }
 
+function dataNoteFor(picked: RankedUniversity[]): string {
+  if (picked.length === 0) return "No schools scored.";
+  const modelled = picked.filter(
+    (r) => r.admission.academic.confidence !== "reported"
+  ).length;
+  if (modelled === 0) {
+    return "Every school here was scored against its own reported Common Data Set figures.";
+  }
+  return `${picked.length - modelled} of ${picked.length} schools were scored against fully reported Common Data Set figures; the other ${modelled} fall back to figures implied by their acceptance rate, so treat those odds as rougher.`;
+}
+
+/** Convenience wrapper returning just the schools. */
 export function buildUniversityList(
-  input: ListBuilderInput,
-  catalog: University[] = UNIVERSITIES
+  student: StudentProfile,
+  catalog: University[] = UNIVERSITIES,
+  options: BuildOptions = {}
 ): RankedUniversity[] {
-  const interestTokens = tokenize(input.universityInterests);
-  const ecTokens = tokenize(input.extracurriculars);
-  const personality = input.personality.trim().toLowerCase();
-  const ranked: RankedUniversity[] = [];
+  return buildList(student, catalog, options).schools;
+}
+
+export function buildList(
+  student: StudentProfile,
+  catalog: University[] = UNIVERSITIES,
+  options: BuildOptions = {}
+): BuiltList {
+  const shape = options.shape ?? DEFAULT_LIST_SHAPE;
+  const exclude = new Set(options.excludeIds ?? []);
+  const regionFilter = (options.regions ?? []).filter(
+    (r) => r && r.toLowerCase() !== "any"
+  );
+
+  const scored: RankedUniversity[] = [];
 
   for (const u of catalog) {
-    const acceptPct = u.acceptanceRate == null ? null : u.acceptanceRate * 100;
+    if (exclude.has(u.id)) continue;
     if (
-      acceptPct != null &&
-      input.minAcceptanceRate != null &&
-      acceptPct < input.minAcceptanceRate
-    ) {
-      continue;
-    }
-    if (
-      acceptPct != null &&
-      input.maxAcceptanceRate != null &&
-      acceptPct > input.maxAcceptanceRate
+      regionFilter.length > 0 &&
+      !regionFilter.some((r) => r.toLowerCase() === u.region.toLowerCase())
     ) {
       continue;
     }
 
-    const academicScore = academicFit(input, u);
-    const locScore = locationFit(input.locationInterest, u);
-    const interestScore = overlapScore(interestTokens, tokenize(u.interests), 28);
-    const personalityScore = personality
-      .split(",")
-      .some((p) => u.personalityFit.toLowerCase().includes(p.trim()))
-      ? 18
-      : tokenize(u.personalityFit).has(personality)
-        ? 10
-        : 4;
-    const ecScore = overlapScore(ecTokens, tokenize(u.extracurricularFit), 16);
-    const fitScore = clamp(
-      academicScore + locScore + interestScore + personalityScore + ecScore,
-      0,
-      100
-    );
-    const category = categorize(input, u, academicScore);
+    const inState =
+      student.homeState != null &&
+      student.homeState.toUpperCase() === u.state.toUpperCase();
+    const cost = annualCost(u, inState);
 
-    if (category === "Safety" && !input.includeSafeties) continue;
-    if (category === "Match" && !input.includeMatches) continue;
-    if (category === "Reach" && !input.includeReaches) continue;
+    if (
+      options.maxAnnualCostUsd != null &&
+      cost != null &&
+      // Allow headroom: aid routinely closes a gap of this size.
+      cost > options.maxAnnualCostUsd * 1.35
+    ) {
+      continue;
+    }
 
-    ranked.push({
+    const admission = estimateAdmission(student, u);
+    const fit = fitBreakdown(student, u, admission.academic);
+
+    scored.push({
       university: u,
-      category,
-      fitScore,
-      rationale: `${category} · academics ${academicScore}/52 · location ${locScore}/20 · interests ${interestScore}/28 · accept ${formatAccept(u.acceptanceRate)}`,
+      category: admission.category,
+      farReach: admission.farReach,
+      probability: admission.probability,
+      fitScore: fit.score,
+      overallScore: overallScore(fit.score, admission.probability, admission.category),
+      admission,
+      fit,
+      estimatedAnnualCostUsd: cost,
+      reasons: reasonsFor(u, admission, fit, cost),
     });
   }
 
-  const order = { Safety: 0, Match: 1, Reach: 2 } as const;
-  return ranked
-    .sort(
+  const byCategory = {
+    Safety: scored.filter((s) => s.category === "Safety"),
+    Match: scored.filter((s) => s.category === "Match"),
+    Reach: scored.filter((s) => s.category === "Reach"),
+  };
+
+  for (const list of Object.values(byCategory)) {
+    list.sort(
       (a, b) =>
-        order[a.category] - order[b.category] ||
+        b.overallScore - a.overallScore ||
         b.fitScore - a.fitScore ||
         a.university.name.localeCompare(b.university.name)
-    )
-    .slice(0, 24);
+    );
+  }
+
+  // Spread reaches across difficulty so the list is not 5 sub-5% lotteries.
+  const reaches = interleaveReaches(byCategory.Reach, shape.reaches);
+
+  const picked = [
+    ...byCategory.Safety.slice(0, shape.safeties),
+    ...byCategory.Match.slice(0, shape.matches),
+    ...reaches,
+  ];
+
+  const order = { Safety: 0, Match: 1, Reach: 2 } as const;
+  const schools = picked.sort(
+    (a, b) => order[a.category] - order[b.category] || b.overallScore - a.overallScore
+  );
+
+  return {
+    schools,
+    counts: summarize(schools),
+    warnings: warningsFor(
+      schools,
+      shape,
+      catalog.length,
+      options.maxAnnualCostUsd != null
+    ),
+    dataNote: dataNoteFor(schools),
+  };
+}
+
+/**
+ * Takes the best reaches but guarantees the near-misses are represented rather
+ * than letting the highest-fit (usually most famous) schools take every slot.
+ */
+function interleaveReaches(reaches: RankedUniversity[], limit: number) {
+  if (reaches.length <= limit) return reaches;
+  const near = reaches.filter((r) => !r.farReach);
+  const far = reaches.filter((r) => r.farReach);
+  const nearTarget = Math.max(1, Math.ceil(limit * 0.6));
+  const picked = [
+    ...near.slice(0, nearTarget),
+    ...far.slice(0, limit - Math.min(near.length, nearTarget)),
+  ];
+  // Top up if one bucket was short.
+  for (const r of reaches) {
+    if (picked.length >= limit) break;
+    if (!picked.includes(r)) picked.push(r);
+  }
+  return picked.slice(0, limit);
+}
+
+export function summarize(list: RankedUniversity[]) {
+  return {
+    safeties: list.filter((r) => r.category === "Safety").length,
+    matches: list.filter((r) => r.category === "Match").length,
+    reaches: list.filter((r) => r.category === "Reach").length,
+  };
 }
