@@ -1,16 +1,20 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+// ESM: there is no __dirname here, so derive the script directory from import.meta.url.
+const here = path.dirname(fileURLToPath(import.meta.url));
 
 const csvPath = [
-  path.join(__dirname, "../data/CDS_109_Universities_Consolidated_Statistics.csv"),
+  path.join(here, "../data/CDS_109_Universities_Consolidated_Statistics.csv"),
   "C:/Users/Admin/Downloads/CDS_109_Universities_Consolidated_Statistics.csv",
 ].find((p) => fs.existsSync(p));
 if (!csvPath) {
   console.error("CDS CSV not found in data/ or Downloads/");
   process.exit(1);
 }
-const outTs = path.join(__dirname, "../src/lib/universities.ts");
-const oldPath = path.join(__dirname, "old-universities.ts");
+const outTs = path.join(here, "../src/lib/universities.ts");
+const oldPath = path.join(here, "old-universities.ts");
 
 /** city, state, region, setting, website */
 const META = {
@@ -241,6 +245,118 @@ const rows = parseCSV(raw);
 const headers = rows[0];
 const idx = Object.fromEntries(headers.map((h, i) => [h, i]));
 
+
+/**
+ * CDS section C7 importance scores, already numeric in the workbook.
+ * 4 = Very Important, 3 = Important, 2 = Considered, 1 = Not Considered.
+ * These are what let the model weight each school the way that school says it
+ * actually reads an application.
+ */
+const FACTOR_COLUMNS = {
+  rigor: "ADMISSION_FACTOR_RIGOR_SCORE",
+  classRank: "ADMISSION_FACTOR_CLASS_RANK_SCORE",
+  gpa: "ADMISSION_FACTOR_ACADEMIC_GPA_SCORE",
+  tests: "ADMISSION_FACTOR_STANDARDIZED_TESTS_SCORE",
+  essay: "ADMISSION_FACTOR_ESSAY_SCORE",
+  recommendations: "ADMISSION_FACTOR_RECOMMENDATIONS_SCORE",
+  interview: "ADMISSION_FACTOR_INTERVIEW_SCORE",
+  extracurriculars: "ADMISSION_FACTOR_EXTRACURRICULARS_SCORE",
+  talent: "ADMISSION_FACTOR_TALENT_ABILITY_SCORE",
+  character: "ADMISSION_FACTOR_CHARACTER_PERSONAL_SCORE",
+  firstGeneration: "ADMISSION_FACTOR_FIRST_GENERATION_SCORE",
+  alumniRelation: "ADMISSION_FACTOR_ALUMNI_RELATION_SCORE",
+  geographicResidence: "ADMISSION_FACTOR_GEOGRAPHIC_RESIDENCE_SCORE",
+  stateResidency: "ADMISSION_FACTOR_STATE_RESIDENCY_SCORE",
+  volunteerWork: "ADMISSION_FACTOR_VOLUNTEER_WORK_SCORE",
+  workExperience: "ADMISSION_FACTOR_WORK_EXPERIENCE_SCORE",
+  applicantInterest: "ADMISSION_FACTOR_APPLICANT_INTEREST_SCORE",
+};
+
+/**
+ * Public/private control. The CSV only reports separate in-state and
+ * out-of-state tuition for 3 of the 109 schools, so it cannot be inferred from
+ * the data; this list is explicit. State-related schools (Pitt, Temple) count
+ * as public because they charge a resident rate.
+ */
+const PUBLIC_SCHOOLS = new Set([
+  "auburn-university",
+  "binghamton-university",
+  "clemson-university",
+  "colorado-school-of-mines",
+  "florida-international-university",
+  "florida-state-university",
+  "georgia-institute-of-technology",
+  "indiana-university-bloomington",
+  "michigan-state-university",
+  "new-jersey-institute-of-technology",
+  "north-carolina-state-university",
+  "ohio-state-university",
+  "pennsylvania-state-university",
+  "purdue-university",
+  "rutgers-university-camden",
+  "rutgers-university-new-brunswick",
+  "rutgers-university-newark",
+  "stony-brook-university",
+  "temple-university",
+  "texas-a-and-m-university",
+  "university-at-buffalo",
+  "university-of-california-berkeley",
+  "university-of-california-davis",
+  "university-of-california-irvine",
+  "university-of-california-los-angeles",
+  "university-of-california-merced",
+  "university-of-california-riverside",
+  "university-of-california-san-diego",
+  "university-of-california-santa-barbara",
+  "university-of-california-santa-cruz",
+  "university-of-colorado-boulder",
+  "university-of-connecticut",
+  "university-of-delaware",
+  "university-of-florida",
+  "university-of-georgia",
+  "university-of-illinois-chicago",
+  "university-of-illinois-urbana-champaign",
+  "university-of-iowa",
+  "university-of-maryland-college-park",
+  "university-of-massachusetts-amherst",
+  "university-of-michigan-ann-arbor",
+  "university-of-minnesota-twin-cities",
+  "university-of-missouri",
+  "university-of-north-carolina-at-chapel-hill",
+  "university-of-pittsburgh",
+  "university-of-south-florida",
+  "university-of-tennessee-knoxville",
+  "university-of-texas-at-austin",
+  "university-of-virginia",
+  "university-of-washington",
+  "university-of-wisconsin-madison",
+  "virginia-tech",
+  "william-and-mary",
+]);
+
+/**
+ * The workbook writes 0 (not NA) into every admission-factor column for
+ * schools whose CDS section C7 was never retrieved — those rows also carry
+ * ADMISSION_FACTORS_CDS_YEAR = NA. A 0 therefore means "not reported", NOT
+ * "not considered", and must become null so the model falls back to a default
+ * rather than concluding the school ignores grades.
+ */
+/**
+ * The year columns hold either a real CDS year ("2025-26") or bookkeeping
+ * strings like "LATEST_CDS_SNAPSHOT_AS_OF_2026-07-27". Only the former is
+ * meaningful to show a student.
+ */
+function cdsYear(raw) {
+  const value = (raw ?? "").trim();
+  return /^\d{4}(-\d{2})?$/.test(value) ? value : null;
+}
+
+function factorScore(raw) {
+  const n = num(raw);
+  if (n == null || n < 1 || n > 4) return null;
+  return n;
+}
+
 const universities = [];
 for (const r of rows.slice(1)) {
   const name = (r[idx.UNIVERSITY] || "").trim();
@@ -248,26 +364,32 @@ for (const r of rows.slice(1)) {
 
   const acceptPct = num(r[idx.ACCEPTANCE_RATE_PERCENT]);
   const gpa = num(r[idx.AVERAGE_HIGH_SCHOOL_GPA]);
+  const sat25 = num(r[idx.SAT_25TH]);
+  const sat75 = num(r[idx.SAT_75TH]);
+  const act25 = num(r[idx.ACT_25TH]);
+  const act75 = num(r[idx.ACT_75TH]);
+
   let sat = num(r[idx.SAT_TYPICAL_SCORE_PROXY]);
   if (sat == null) sat = num(r[idx.SAT_MEDIAN_REPORTED]);
-  if (sat == null) {
-    const a = num(r[idx.SAT_25TH]);
-    const b = num(r[idx.SAT_75TH]);
-    if (a != null && b != null) sat = Math.round((a + b) / 2);
-  }
+  if (sat == null && sat25 != null && sat75 != null) sat = (sat25 + sat75) / 2;
   let act = num(r[idx.ACT_TYPICAL_SCORE_PROXY]);
   if (act == null) act = num(r[idx.ACT_MEDIAN_REPORTED]);
-  if (act == null) {
-    const a = num(r[idx.ACT_25TH]);
-    const b = num(r[idx.ACT_75TH]);
-    if (a != null && b != null) act = Math.round((a + b) / 2);
-  }
+  if (act == null && act25 != null && act75 != null) act = (act25 + act75) / 2;
 
   const rank = num(r[idx.US_NEWS_2026_RANK]);
+  const tuitionInState = num(r[idx.TUITION_IN_STATE_USD]);
+  const tuitionOutOfState = num(r[idx.TUITION_OUT_OF_STATE_USD]);
   const tuition =
-    num(r[idx.TUITION_SINGLE_RATE_USD]) ??
-    num(r[idx.TUITION_OUT_OF_STATE_USD]) ??
-    num(r[idx.TUITION_IN_STATE_USD]);
+    num(r[idx.TUITION_SINGLE_RATE_USD]) ?? tuitionOutOfState ?? tuitionInState;
+  const totalCost =
+    num(r[idx.TOTAL_COST_SINGLE_RATE_USD]) ??
+    num(r[idx.TOTAL_COST_OUT_OF_STATE_USD]) ??
+    num(r[idx.TOTAL_COST_IN_STATE_USD]);
+
+  const admissionFactors = {};
+  for (const [key, col] of Object.entries(FACTOR_COLUMNS)) {
+    admissionFactors[key] = factorScore(r[idx[col]]);
+  }
 
   let cds =
     r[idx.PRIMARY_ADMISSIONS_SOURCE_URL] ||
@@ -288,6 +410,11 @@ for (const r of rows.slice(1)) {
     }
   }
 
+  const vrTourUrl =
+    prevFuzzy?.vrTourUrl && !prevFuzzy.vrTourUrl.includes("google.com/search")
+      ? prevFuzzy.vrTourUrl
+      : `https://www.google.com/search?q=${encodeURIComponent(name + " virtual tour")}`;
+
   const [city, state, region, setting, website] = meta || [
     prevFuzzy?.city || "—",
     prevFuzzy?.state || "US",
@@ -296,12 +423,6 @@ for (const r of rows.slice(1)) {
     prevFuzzy?.websiteUrl || `https://www.google.com/search?q=${encodeURIComponent(name)}`,
   ];
 
-  const websiteUrl = website || prevFuzzy?.websiteUrl;
-  const vrTourUrl =
-    prevFuzzy?.vrTourUrl && !prevFuzzy.vrTourUrl.includes("google.com/search")
-      ? prevFuzzy.vrTourUrl
-      : `https://www.google.com/search?q=${encodeURIComponent(name + " virtual tour")}`;
-
   universities.push({
     id: slug(name),
     name,
@@ -309,12 +430,23 @@ for (const r of rows.slice(1)) {
     state,
     region,
     usNewsRank: rank,
-    acceptanceRate:
-      acceptPct != null ? Math.round(acceptPct * 100) / 10000 : null,
+    acceptanceRate: acceptPct != null ? Math.round(acceptPct * 100) / 10000 : null,
     avgGpa: gpa != null ? Math.round(gpa * 100) / 100 : null,
     satMid: sat != null ? Math.round(sat) : null,
+    sat25: sat25 != null ? Math.round(sat25) : null,
+    sat75: sat75 != null ? Math.round(sat75) : null,
     actMid: act != null ? Math.round(act) : null,
+    act25: act25 != null ? Math.round(act25) : null,
+    act75: act75 != null ? Math.round(act75) : null,
     tuitionUsd: tuition != null ? Math.round(tuition) : null,
+    tuitionInStateUsd: tuitionInState != null ? Math.round(tuitionInState) : null,
+    tuitionOutOfStateUsd:
+      tuitionOutOfState != null ? Math.round(tuitionOutOfState) : null,
+    totalCostUsd: totalCost != null ? Math.round(totalCost) : null,
+    isPublic: PUBLIC_SCHOOLS.has(slug(name)),
+    admissionFactors,
+    admissionFactorsYear: cdsYear(r[idx.ADMISSION_FACTORS_CDS_YEAR]),
+    acceptanceRateYear: cdsYear(r[idx.ACCEPTANCE_RATE_CDS_YEAR]),
     setting,
     interests: prevFuzzy?.interests || "academics,research,campus life",
     personalityFit: prevFuzzy?.personalityFit || "balanced,ambitious",
@@ -322,7 +454,7 @@ for (const r of rows.slice(1)) {
       prevFuzzy?.extracurricularFit || "clubs,research,service,athletics",
     vrTourUrl,
     cdsUrl: cds,
-    websiteUrl,
+    websiteUrl: website || prevFuzzy?.websiteUrl,
     sizeBand: prevFuzzy?.sizeBand || "Large",
   });
 }
@@ -339,7 +471,33 @@ if (missingMeta.length) {
   console.warn("Missing META for:", missingMeta.join(", "));
 }
 
-const file = `export type University = {
+const file = `export type AdmissionFactorKey =
+  | "rigor"
+  | "classRank"
+  | "gpa"
+  | "tests"
+  | "essay"
+  | "recommendations"
+  | "interview"
+  | "extracurriculars"
+  | "talent"
+  | "character"
+  | "firstGeneration"
+  | "alumniRelation"
+  | "geographicResidence"
+  | "stateResidency"
+  | "volunteerWork"
+  | "workExperience"
+  | "applicantInterest";
+
+/**
+ * CDS section C7 importance, verbatim from the workbook:
+ * 4 = Very Important, 3 = Important, 2 = Considered, 1 = Not Considered,
+ * null = the school did not report that row.
+ */
+export type AdmissionFactors = Record<AdmissionFactorKey, number | null>;
+
+export type University = {
   id: string;
   name: string;
   city: string;
@@ -351,9 +509,22 @@ const file = `export type University = {
   acceptanceRate: number | null;
   avgGpa: number | null;
   satMid: number | null;
+  sat25: number | null;
+  sat75: number | null;
   actMid: number | null;
+  act25: number | null;
+  act75: number | null;
   /** Best available tuition (single / OOS / in-state) in USD. */
   tuitionUsd: number | null;
+  tuitionInStateUsd: number | null;
+  tuitionOutOfStateUsd: number | null;
+  /** Tuition + housing + books + transport + personal, per CDS. */
+  totalCostUsd: number | null;
+  /** Public (or state-related) institutions charge a resident tuition rate. */
+  isPublic: boolean;
+  admissionFactors: AdmissionFactors;
+  admissionFactorsYear: string | null;
+  acceptanceRateYear: string | null;
   setting: string;
   interests: string;
   personalityFit: string;
@@ -366,6 +537,10 @@ const file = `export type University = {
 
 /** Seeded from CDS_109_Universities_Consolidated_Statistics.csv (${universities.length} schools). */
 export const UNIVERSITIES: University[] = ${JSON.stringify(universities, null, 2)};
+
+export const UNIVERSITIES_BY_ID: Map<string, University> = new Map(
+  UNIVERSITIES.map((u) => [u.id, u])
+);
 
 export function searchUniversities(q: string) {
   const query = q.trim().toLowerCase();
